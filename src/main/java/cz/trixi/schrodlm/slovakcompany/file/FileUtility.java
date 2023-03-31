@@ -1,10 +1,14 @@
 package cz.trixi.schrodlm.slovakcompany.file;
 
 
+import cz.trixi.schrodlm.slovakcompany.Info;
+import cz.trixi.schrodlm.slovakcompany.model.BatchMetadata;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -21,6 +25,7 @@ public class FileUtility {
      * @param link - data URL
      * @param out  - file which data will be downloaded into
      */
+
 
     public void download(String link, File out) throws IOException {
         try {
@@ -65,7 +70,56 @@ public class FileUtility {
      * @throws IOException
      */
     public void downloadSlovakRegister(File out) throws IOException {
-        download("https://frkqbrydxwdp.compat.objectstorage.eu-frankfurt-1.oraclecloud.com", out);
+        download(Info.batchMetaDataLink, out);
+    }
+
+    /**
+     * Download all batches from the provided collection. Every BatchMetadata class should contain download link.
+     * It will store them in provided directory
+     * @param batchMetadataCollection
+     * @param destDir
+     * @throws IOException
+     */
+    public void downloadBatchCollection(Collection<BatchMetadata> batchMetadataCollection, File destDir) throws IOException
+    {
+
+        for( BatchMetadata batch : batchMetadataCollection)
+        {
+            File batchFile = new File(destDir.getPath() + "/" + batch.link.replace("/","-"));
+            if(batchFile.exists()) continue;
+            download(Info.batchMetaDataLink + "/" +  batch.link, batchFile);
+        }
+    }
+
+    public void unzipDirectory(File dir)
+    {
+        if(!dir.isDirectory()) throw new RuntimeException("Unable to unzip since path is not a directory");
+
+        for( File file : dir.listFiles())
+        {
+            //files should only be GZIP
+            if(!isGZIP(file)) throw new RuntimeException("File in provided directory is not a GZIP file");
+        }
+    }
+
+    /**
+     * Checks if file is a GZIP by reading the "magic bytes", in GZIP it should be hex signature of "1F 8B"
+     * @param file - file to check
+     * @return
+     */
+    public boolean isGZIP(File file)
+    {
+        try(FileInputStream fis = new FileInputStream(file.getPath()))
+        {
+            byte[] buffer = new byte[2];
+            int bytesRead = fis.read(buffer);
+            if(buffer[0] == (byte)0x1F && buffer[1] == (byte) 0x8B) return true;
+        }
+        catch(IOException e)
+        {
+            System.err.println("An error occurred while reading the file: " + e.getMessage());
+        }
+        return false;
     }
 
     /**

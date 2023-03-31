@@ -1,11 +1,15 @@
 package cz.trixi.schrodlm.slovakcompany;
 
 import cz.trixi.schrodlm.slovakcompany.file.FileUtility;
+import cz.trixi.schrodlm.slovakcompany.model.BatchMetadata;
+import cz.trixi.schrodlm.slovakcompany.parsing.XMLBatchParser;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
 
 @SpringBootApplication
 public class SlovakCompanyApplication implements CommandLineRunner {
@@ -16,6 +20,7 @@ public class SlovakCompanyApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
+
 		FileUtility fileUtility = new FileUtility();
 
 		//Create a directory for the resources
@@ -28,6 +33,28 @@ public class SlovakCompanyApplication implements CommandLineRunner {
 		File out = new File(destDir.getPath() + "/download.xml");
 
 		fileUtility.downloadSlovakRegister(out);
+
+
+		XMLBatchParser xmlBatchParser = new XMLBatchParser(out);
+
+		Collection<BatchMetadata> init_batches = new ArrayList<>();
+		Collection<BatchMetadata> update_batches = new ArrayList<>();
+
+		//Parse will parse the downloaded batch XML metadata and will also fill both collections
+		xmlBatchParser.parseBatchMetadata(init_batches,update_batches);
+
+		//Now I want to download all the init-batches to a file in resources
+
+		//1. Create directory to store init-batches
+		File initBatchesDirectory = new File(destDir.getPath() + "/batch-init");
+		if(!initBatchesDirectory.exists())
+			if(!initBatchesDirectory.mkdir()) throw new RuntimeException("Creating batch directory failed");
+
+		fileUtility.downloadBatchCollection(init_batches, initBatchesDirectory);
+
+		//Unzip downloaded batch files
+		fileUtility.unzipDirectory(initBatchesDirectory);
+
 	}
 
 }
