@@ -6,6 +6,7 @@ import cz.trixi.schrodlm.slovakcompany.parsing.XMLBatchParser;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.util.StopWatch;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -20,6 +21,11 @@ public class SlovakCompanyApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
+
+		//simple benchmark
+		StopWatch stopWatch = new StopWatch();
+		stopWatch.start();
+
 
 		FileUtility fileUtility = new FileUtility();
 
@@ -46,15 +52,22 @@ public class SlovakCompanyApplication implements CommandLineRunner {
 		//Now I want to download all the init-batches to a file in resources
 
 		//1. Create directory to store init-batches
+		File zippedInitBatchesDirectory = new File(destDir.getPath() + "/zipped-batch-init");
+		if(!zippedInitBatchesDirectory.exists())
+			if(!zippedInitBatchesDirectory.mkdir()) throw new RuntimeException("Creating zipped batch directory failed");
+
+		fileUtility.downloadBatchCollection(init_batches, zippedInitBatchesDirectory);
+
+		//Unzip downloaded batch files
 		File initBatchesDirectory = new File(destDir.getPath() + "/batch-init");
 		if(!initBatchesDirectory.exists())
 			if(!initBatchesDirectory.mkdir()) throw new RuntimeException("Creating batch directory failed");
 
-		fileUtility.downloadBatchCollection(init_batches, initBatchesDirectory);
+		fileUtility.unzipDirectory(zippedInitBatchesDirectory, initBatchesDirectory);
 
-		//Unzip downloaded batch files
-		fileUtility.unzipDirectory(initBatchesDirectory);
-
+		stopWatch.stop();
+		long timeTaken = stopWatch.getTotalTimeMillis();
+		System.out.println(timeTaken);
 	}
 
 }

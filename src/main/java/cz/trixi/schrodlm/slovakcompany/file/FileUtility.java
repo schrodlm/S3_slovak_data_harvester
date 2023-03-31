@@ -9,6 +9,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -44,17 +45,10 @@ public class FileUtility {
             int iteration = 0;
             while ((read = in.read(buffer, 0, BUFFER_SIZE)) >= 0) {
                 bout.write(buffer, 0, read);
-                downloaded += read;
-                percentDownloaded = (downloaded * 100) / fileSize;
-                if (iteration++ % 15 == 0) {
-                    String percent = String.format("%.1f", percentDownloaded);
-                    System.out.println("Downloaded " + percent + "% of a file");
-                }
-
             }
             bout.close();
             in.close();
-            System.out.println("Download completed.");
+            System.out.println("Download of " + out.getName() + " completed.");
 
 
         } catch (MalformedURLException e) {
@@ -91,14 +85,20 @@ public class FileUtility {
         }
     }
 
-    public void unzipDirectory(File dir)
+    public void unzipDirectory(File sourceDir, File destDir)
     {
-        if(!dir.isDirectory()) throw new RuntimeException("Unable to unzip since path is not a directory");
+        if(!sourceDir.isDirectory()) throw new RuntimeException("Unable to unzip since path is not a directory");
 
-        for( File file : dir.listFiles())
+        for( File file : sourceDir.listFiles())
         {
             //files should only be GZIP
             if(!isGZIP(file)) throw new RuntimeException("File in provided directory is not a GZIP file");
+
+            try {
+                unzipGZIPFile(file,destDir);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -125,34 +125,32 @@ public class FileUtility {
     /**
      * Recursively unzips all content of the zipped file and saves its structure (paths of directories and files)
      *
-     * @param zipFilePath   - file path to the zipped file
-     * @param destDirectory - destination direction
+     * @param zipFile   - zipped file
+     * @param destDirectory - destination directory
      */
-    public void unzip(String zipFilePath, String destDirectory) throws IOException {
+    public void unzipGZIPFile(File zipFile, File destDirectory) throws IOException {
 
-        System.out.println("Unzipping downloaded file...");
+        System.out.println("Unzipping file...");
 
-        File destDir = new File(destDirectory);
-        if (!destDir.exists()) {
-            destDir.mkdir();
+        try{
+        GZIPInputStream gis = new GZIPInputStream(new FileInputStream(zipFile.getPath()));
+        FileOutputStream fos = new FileOutputStream(destDirectory + File.separator + zipFile.getName().replace("json.gz", "json"));
+
+        byte[] buffer = new byte[BUFFER_SIZE];
+        int len;
+        while ((len = gis.read(buffer)) != -1) {
+            fos.write(buffer, 0, len);
         }
-        ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFilePath));
-        ZipEntry entry = zipIn.getNextEntry();
-        // iterates over entries in the zip file
-        while (entry != null) {
-            String filePath = destDirectory + File.separator + entry.getName();
-            if (!entry.isDirectory()) {
-                // if the entry is a file, extracts it
-                extractFile(zipIn, filePath);
-            } else {
-                // if the entry is a directory, make the directory
-                File dir = new File(filePath);
-                dir.mkdirs();
-            }
-            zipIn.closeEntry();
-            entry = zipIn.getNextEntry();
+
+        System.out.println("File " + zipFile.getName() + " successfully unzipped");
+
+        //closing resources
+        fos.close();
+        gis.close();
         }
-        zipIn.close();
+        catch(IOException e){
+            e.printStackTrace();
+        }
 
     }
 
