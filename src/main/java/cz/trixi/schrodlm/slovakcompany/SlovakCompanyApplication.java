@@ -65,6 +65,9 @@ public class SlovakCompanyApplication implements CommandLineRunner {
 
 		fileUtility.unzipDirectory(zippedInitBatchesDirectory, initBatchesDirectory);
 
+		//Parse init batches (JSON) and push them into PostGIS database
+
+		// Benchmarking
 		stopWatch.stop();
 		long timeTaken = stopWatch.getTotalTimeMillis();
 		System.out.println(timeTaken);

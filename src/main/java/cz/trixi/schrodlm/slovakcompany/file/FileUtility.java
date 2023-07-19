@@ -183,7 +183,6 @@ public class FileUtility {
         for (final File fileEntry : directory.listFiles()) {
             if (fileEntry.isDirectory()) {
                 deleteDirectoryContent(fileEntry);
-                continue;
             } else {
                 fileEntry.delete();
             }
