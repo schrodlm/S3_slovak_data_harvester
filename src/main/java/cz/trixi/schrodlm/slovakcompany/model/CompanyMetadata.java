@@ -9,25 +9,6 @@ import java.time.Instant;
 
 
 // TODO: Could be a record
-public class CompanyMetadata {
-
-
-    //TODO: Find out what type should @lastModified be
-    public CompanyMetadata(String key,  Instant lastModified, String ETag, long size, String storageClass) {
-        this.key = key;
-        this.lastModified = lastModified;
-        this.ETag = ETag;
-        this.size = size;
-        this.storageClass = storageClass;
-    }
-
-    public String key;
-    public Instant lastModified;
-
-    public String ETag;
-
-    public long size;
-
-    public String storageClass;
+public record CompanyMetadata(String key,  Instant lastModified, String ETag, long size, String storageClass) {
 
 }
