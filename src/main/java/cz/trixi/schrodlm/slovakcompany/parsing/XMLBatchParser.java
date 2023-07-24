@@ -13,6 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.time.Instant;
 import java.util.Collection;
 
 /**
@@ -32,7 +33,7 @@ public class XMLBatchParser {
      */
     public void parseBatchMetadata(Collection<BatchMetadata> init_batches,Collection<BatchMetadata> update_batches) throws ParserConfigurationException, IOException, SAXException {
 
-        //directory is empty
+        //directory doesn't exist
         if(!registerMetadataFile.exists()){
             System.out.println("The XML Batch with file path: " + registerMetadataFile.getPath() + " doesn't exists");
             return;
@@ -53,7 +54,7 @@ public class XMLBatchParser {
             // BATCH PARSING
             //============================================================
 
-            // Get all municipalities by their tag name
+            // Get all companies by their tag name
             NodeList batchList = document.getElementsByTagName("Contents");
 
 
@@ -68,20 +69,20 @@ public class XMLBatchParser {
                     //get specific batch details
                     try {
                         String link = batchElement.getElementsByTagName("Key").item(0).getTextContent();
-                        String lastModified = batchElement.getElementsByTagName("LastModified").item(0).getTextContent();
+                        Instant lastModified = Instant.parse(batchElement.getElementsByTagName("LastModified").item(0).getTextContent());
                         String ETag = batchElement.getElementsByTagName("ETag").item(0).getTextContent();
-                        BigInteger size = new BigInteger(batchElement.getElementsByTagName("Size").item(0).getTextContent());
+                        long size = Long.parseLong(batchElement.getElementsByTagName("Size").item(0).getTextContent());
                         String storageClass = batchElement.getElementsByTagName("StorageClass").item(0).getTextContent();
 
 
                         if(link.startsWith("batch-init") && link.endsWith("json.gz"))
-                            init_batches.add(new BatchMetadata(link,lastModified,ETag, size,storageClass));
+                            init_batches.add(new BatchMetadata( key, lastModified,ETag, size,storageClass));
 
                         else if(link.startsWith("batch-daily"))
-                            update_batches.add(new BatchMetadata(link,lastModified,ETag,size,storageClass));
+                            update_batches.add(new BatchMetadata(key, lastModified,ETag,size,storageClass));
 
                     } catch (NullPointerException e) {
-                        throw new RuntimeException("Error: Insufficient information/wrong format provided for Municipality Entity in the XML file");
+                        throw new RuntimeException("Error: Insufficient information/wrong format provided for content parsing in the XML file");
                     }
                 }
 

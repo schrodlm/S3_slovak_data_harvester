@@ -3,20 +3,29 @@ package cz.trixi.schrodlm.slovakcompany.file;
 
 import cz.trixi.schrodlm.slovakcompany.Info;
 import cz.trixi.schrodlm.slovakcompany.model.BatchMetadata;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+@Service
 public class FileUtility {
-    public FileUtility() {
-    }
 
+    @Value( "${zipDir}" )
+    public String zipDir;
+
+    @Value("${xmlDir}")
+    public String xmlDir;
 
     private static final int BUFFER_SIZE = 4096;
 
@@ -26,8 +35,6 @@ public class FileUtility {
      * @param link - data URL
      * @param out  - file which data will be downloaded into
      */
-
-
     public void download(String link, File out) throws IOException {
         try {
 
@@ -79,9 +86,9 @@ public class FileUtility {
 
         for( BatchMetadata batch : batchMetadataCollection)
         {
-            File batchFile = new File(destDir.getPath() + "/" + batch.link.replace("/","-"));
+            File batchFile = new File(destDir.getPath() + "/" + batch.key.replace("/","-"));
             if(batchFile.exists()) continue;
-            download(Info.batchMetaDataLink + "/" +  batch.link, batchFile);
+            download(Info.batchMetaDataLink + "/" +  batch.key, batchFile);
         }
     }
 
@@ -189,6 +196,21 @@ public class FileUtility {
         }
         directory.delete();
 
+    }
+
+    public boolean directoriesExistCheck(){
+        File xmlDirectory = new File(xmlDir);
+        File zipDirectory = new File(zipDir);
+
+
+        //Checks if directory for zipped files exists
+        if(!zipDirectory.exists())
+            return false;
+        //Checks if directory for xml exists
+        if (!xmlDirectory.exists())
+            return false;
+
+        return true;
     }
 }
 
