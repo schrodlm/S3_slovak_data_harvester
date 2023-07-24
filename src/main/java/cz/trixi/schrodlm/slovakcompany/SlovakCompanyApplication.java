@@ -1,10 +1,8 @@
 package cz.trixi.schrodlm.slovakcompany;
 
 import cz.trixi.schrodlm.slovakcompany.file.FileUtility;
-import cz.trixi.schrodlm.slovakcompany.model.BatchMetadata;
+import cz.trixi.schrodlm.slovakcompany.model.CompanyMetadata;
 import cz.trixi.schrodlm.slovakcompany.parsing.XMLBatchParser;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -50,8 +48,8 @@ public class SlovakCompanyApplication {
 
 		XMLBatchParser xmlBatchParser = new XMLBatchParser(out);
 
-		Collection<BatchMetadata> init_batches = new ArrayList<>();
-		Collection<BatchMetadata> update_batches = new ArrayList<>();
+		Collection<CompanyMetadata> init_batches = new ArrayList<>();
+		Collection<CompanyMetadata> update_batches = new ArrayList<>();
 
 		//Parse will parse the downloaded batch XML metadata and will also fill both collections
 		xmlBatchParser.parseBatchMetadata(init_batches,update_batches);

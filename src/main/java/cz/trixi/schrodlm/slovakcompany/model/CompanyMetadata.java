@@ -1,6 +1,5 @@
 package cz.trixi.schrodlm.slovakcompany.model;
 
-import java.math.BigInteger;
 import java.time.Instant;
 
 /**
@@ -10,11 +9,12 @@ import java.time.Instant;
 
 
 // TODO: Could be a record
-public class BatchMetadata {
+public class CompanyMetadata {
 
 
     //TODO: Find out what type should @lastModified be
-    public BatchMetadata(String key,  Instant lastModified, String ETag, long size, String storageClass) {
+    public CompanyMetadata(String key,  Instant lastModified, String ETag, long size, String storageClass) {
+        this.key = key;
         this.lastModified = lastModified;
         this.ETag = ETag;
         this.size = size;

@@ -1,0 +1,141 @@
+package cz.trixi.schrodlm.slovakcompany.service;
+
+import cz.trixi.schrodlm.slovakcompany.model.CompanyMetadata;
+import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import software.amazon.awssdk.auth.credentials.AnonymousCredentialsProvider;
+import software.amazon.awssdk.core.sync.ResponseTransformer;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.S3Object;
+import software.amazon.awssdk.services.s3.paginators.ListObjectsV2Iterable;
+
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+/**
+ * Handles all communication with SRPO S3 File Storage.
+ */
+@Component
+public class CompanyS3Handler {
+    final public URI endpoint = URI.create( "https://compat.objectstorage.eu-frankfurt-1.oraclecloud.com/susr-rpo" );
+
+    final public String bucket = "frkqbrydxwdp";
+
+    public S3Client s3Client;
+
+    @Value("${zipDir}")
+    public String zipDir;
+
+    @Value("${xmlDir}")
+    public String xmlDir;
+
+    Logger log = LoggerFactory.getLogger( getClass() );
+
+    /**
+     * Post construct class that initializes S3Client object
+     */
+    @PostConstruct
+    private void S3Connect() {
+        S3Client s3 = S3Client.builder()
+                .region( Region.AF_SOUTH_1 )
+                .credentialsProvider( AnonymousCredentialsProvider.create() )
+                .endpointOverride( endpoint )
+                .build();
+
+        this.s3Client = s3;
+    }
+
+    /**
+     * Retrieves metadata about an s3 object
+     */
+    public CompanyMetadata retrieveMetadata( S3Object s3Object ) {
+
+        // Retrieving basic metadata about object
+        String key_string = s3Object.key();
+        long size = s3Object.size();
+        Instant lastModified = s3Object.lastModified();
+        String eTag = s3Object.eTag();
+        String storageClass = s3Object.storageClassAsString();
+
+        CompanyMetadata companyMetadata = new CompanyMetadata( key_string, lastModified, eTag, size, storageClass );
+        return companyMetadata;
+    }
+
+    /**
+     * Downloads all objects (zipped JSONs containing info about companies) from an S3 bucket and saves them as individual files
+     * in the specified zipDir.
+     */
+    public void downloadAllObjects() {
+
+        // Create a ListObjectsV2Request object
+        ListObjectsV2Request listObjectsReqManual = ListObjectsV2Request.builder()
+                .bucket( bucket )
+                .build();
+
+        ListObjectsV2Iterable response = s3Client.listObjectsV2Paginator( listObjectsReqManual );
+
+        if ( !Files.isDirectory( Paths.get( zipDir ) ) ) {
+            log.info( "Directory doesn't exist" );
+            return;
+        }
+
+        for ( S3Object companiesInfoFile : response.contents() ) {
+
+            log.info( "Downloading zipped file: " + companiesInfoFile.key() );
+
+            // Prepare complete path
+            Path targetPath = Paths.get( zipDir ).resolve( companiesInfoFile.key() );
+
+            if ( Files.exists( targetPath ) ) {
+
+                log.info( "Object " + companiesInfoFile.key() + " has already been downloaded: " );
+                continue;
+            }
+
+            GetObjectRequest objectRequest = GetObjectRequest.builder()
+                    .bucket( bucket )
+                    .key( companiesInfoFile.key() )
+                    .build();
+
+            // Downloading object
+            s3Client.getObject( objectRequest, ResponseTransformer.toFile( targetPath ) );
+
+            //Retrieve metadata
+            CompanyMetadata companyMetadata = retrieveMetadata( companiesInfoFile );
+
+            log.info( "Downloaded object: " + companiesInfoFile.key() );
+        }
+    }
+
+    /**
+     *  Download a zipped file containing changes to companies from today
+     */
+    public void downloadTodaysBatch() {
+
+        // Format the date as "yyyy-MM-dd" so it is formatted according to a key on file storage
+        String formattedDate = LocalDateTime.now().format( DateTimeFormatter.ofPattern( "yyyy-MM-dd" ) );
+        String key = "batch-daily/actual_" + formattedDate + ".json.gz";
+
+        GetObjectRequest s3ObjectReq = GetObjectRequest.builder()
+                .bucket( bucket )
+                .key( key )
+                .build();
+        log.info( "Downloading today's batch: " + key );
+        s3Client.getObject( s3ObjectReq, ResponseTransformer.toFile( Paths.get( zipDir ).resolve( "daily_batch_" + formattedDate + ".json.gz") ) );
+    }
+
+
+
+
+}

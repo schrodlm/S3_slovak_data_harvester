@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.StopWatch;
+import cz.trixi.schrodlm.slovakcompany.service.CompanyS3Handler;
 
 @SpringBootApplication
 public class LaunchS3ClientDownload {
@@ -18,11 +19,11 @@ public class LaunchS3ClientDownload {
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
 
-		//Parse will parse the downloaded batch XML metadata and will also fill both collections
-
+		//Download all zip objects
 		CompanyS3Handler companyS3Handler = context.getBean( CompanyS3Handler.class );
 		companyS3Handler.downloadAllObjects();
 
+		companyS3Handler.downloadTodaysBatch();
 		//Unzip downloaded batch files
 		//		File initBatchesDirectory = new File("batches/unzipped-batch-init");
 		//		if(!initBatchesDirectory.exists())

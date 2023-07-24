@@ -1,6 +1,6 @@
 package cz.trixi.schrodlm.slovakcompany.parsing;
 
-import cz.trixi.schrodlm.slovakcompany.model.BatchMetadata;
+import cz.trixi.schrodlm.slovakcompany.model.CompanyMetadata;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -12,7 +12,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.time.Instant;
 import java.util.Collection;
 
@@ -31,7 +30,7 @@ public class XMLBatchParser {
      * Method will try to parse batch metadata file and will fill both of input collections with
      * right content
      */
-    public void parseBatchMetadata(Collection<BatchMetadata> init_batches,Collection<BatchMetadata> update_batches) throws ParserConfigurationException, IOException, SAXException {
+    public void parseBatchMetadata(Collection<CompanyMetadata> init_batches,Collection<CompanyMetadata> update_batches) throws ParserConfigurationException, IOException, SAXException {
 
         //directory doesn't exist
         if(!registerMetadataFile.exists()){
@@ -76,10 +75,10 @@ public class XMLBatchParser {
 
 
                         if(link.startsWith("batch-init") && link.endsWith("json.gz"))
-                            init_batches.add(new BatchMetadata( key, lastModified,ETag, size,storageClass));
+                            init_batches.add(new CompanyMetadata( key, lastModified,ETag, size,storageClass));
 
                         else if(link.startsWith("batch-daily"))
-                            update_batches.add(new BatchMetadata(key, lastModified,ETag,size,storageClass));
+                            update_batches.add(new CompanyMetadata(key, lastModified,ETag,size,storageClass));
 
                     } catch (NullPointerException e) {
                         throw new RuntimeException("Error: Insufficient information/wrong format provided for content parsing in the XML file");

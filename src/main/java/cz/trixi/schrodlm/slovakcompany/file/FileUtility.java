@@ -1,8 +1,7 @@
 package cz.trixi.schrodlm.slovakcompany.file;
 
 
-import cz.trixi.schrodlm.slovakcompany.Info;
-import cz.trixi.schrodlm.slovakcompany.model.BatchMetadata;
+import cz.trixi.schrodlm.slovakcompany.model.CompanyMetadata;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -10,12 +9,8 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.zip.GZIPInputStream;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 @Service
@@ -26,6 +21,8 @@ public class FileUtility {
 
     @Value("${xmlDir}")
     public String xmlDir;
+
+    final private String batchMetaDataLink = "https://frkqbrydxwdp.compat.objectstorage.eu-frankfurt-1.oraclecloud.com/susr-rpo";
 
     private static final int BUFFER_SIZE = 4096;
 
@@ -71,24 +68,22 @@ public class FileUtility {
      * @throws IOException
      */
     public void downloadSlovakRegister(File out) throws IOException {
-        download(Info.batchMetaDataLink, out);
+        download(batchMetaDataLink, out);
     }
 
     /**
      * Download all batches from the provided collection. Every BatchMetadata class should contain download link.
      * It will store them in provided directory
-     * @param batchMetadataCollection
-     * @param destDir
      * @throws IOException
      */
-    public void downloadBatchCollection(Collection<BatchMetadata> batchMetadataCollection, File destDir) throws IOException
+    public void downloadBatchCollection(Collection<CompanyMetadata> companyMetadataCollection, File destDir) throws IOException
     {
 
-        for( BatchMetadata batch : batchMetadataCollection)
+        for( CompanyMetadata batch : companyMetadataCollection )
         {
             File batchFile = new File(destDir.getPath() + "/" + batch.key.replace("/","-"));
             if(batchFile.exists()) continue;
-            download(Info.batchMetaDataLink + "/" +  batch.key, batchFile);
+            download(batchMetaDataLink + "/" +  batch.key, batchFile);
         }
     }
 
