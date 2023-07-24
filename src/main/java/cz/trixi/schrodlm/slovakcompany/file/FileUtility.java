@@ -2,6 +2,8 @@ package cz.trixi.schrodlm.slovakcompany.file;
 
 
 import cz.trixi.schrodlm.slovakcompany.model.CompanyMetadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -16,76 +18,12 @@ import java.util.zip.ZipInputStream;
 @Service
 public class FileUtility {
 
-    @Value( "${zipDir}" )
-    public String zipDir;
-
-    @Value("${xmlDir}")
-    public String xmlDir;
+    Logger log = LoggerFactory.getLogger( getClass() );
 
     final private String batchMetaDataLink = "https://frkqbrydxwdp.compat.objectstorage.eu-frankfurt-1.oraclecloud.com/susr-rpo";
 
     private static final int BUFFER_SIZE = 4096;
 
-    /**
-     * Download a file with a provided link and saves it to the file out
-     *
-     * @param link - data URL
-     * @param out  - file which data will be downloaded into
-     */
-    public void download(String link, File out) throws IOException {
-        try {
-
-            URL url = new URL(link);
-            HttpURLConnection http = (HttpURLConnection) url.openConnection();
-            double fileSize = (double) http.getContentLengthLong();
-            BufferedInputStream in = new BufferedInputStream(http.getInputStream());
-            FileOutputStream fos = new FileOutputStream(out);
-            BufferedOutputStream bout = new BufferedOutputStream(fos, BUFFER_SIZE);
-            byte[] buffer = new byte[BUFFER_SIZE];
-            double downloaded = 0.00;
-            int read = 0;
-            double percentDownloaded = 0.00;
-
-            int iteration = 0;
-            while ((read = in.read(buffer, 0, BUFFER_SIZE)) >= 0) {
-                bout.write(buffer, 0, read);
-            }
-            bout.close();
-            in.close();
-            System.out.println("Download of " + out.getName() + " completed.");
-
-
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Download XML file that contains Slovakian Companies Register batches from the last 45 days.
-     * That includes init_batches that contain all of registered slovakian companies and also daily update batches that contain
-     * new companies registered on specific day
-     * @param out
-     * @throws IOException
-     */
-    public void downloadSlovakRegister(File out) throws IOException {
-        download(batchMetaDataLink, out);
-    }
-
-    /**
-     * Download all batches from the provided collection. Every BatchMetadata class should contain download link.
-     * It will store them in provided directory
-     * @throws IOException
-     */
-    public void downloadBatchCollection(Collection<CompanyMetadata> companyMetadataCollection, File destDir) throws IOException
-    {
-
-        for( CompanyMetadata batch : companyMetadataCollection )
-        {
-            File batchFile = new File(destDir.getPath() + "/" + batch.key.replace("/","-"));
-            if(batchFile.exists()) continue;
-            download(batchMetaDataLink + "/" +  batch.key, batchFile);
-        }
-    }
 
     public void unzipDirectory(File sourceDir, File destDir)
     {
@@ -94,7 +32,10 @@ public class FileUtility {
         for( File file : sourceDir.listFiles())
         {
             //files should only be GZIP
-            if(!isGZIP(file)) throw new RuntimeException("File in provided directory is not a GZIP file");
+            if(!isGZIP(file)){
+             log.warn( "File " + file.getName() + " is not a GZIP file, skipping it..." );
+             continue;
+            }
 
             try {
                 unzipGZIPFile(file,destDir);
@@ -191,21 +132,6 @@ public class FileUtility {
         }
         directory.delete();
 
-    }
-
-    public boolean directoriesExistCheck(){
-        File xmlDirectory = new File(xmlDir);
-        File zipDirectory = new File(zipDir);
-
-
-        //Checks if directory for zipped files exists
-        if(!zipDirectory.exists())
-            return false;
-        //Checks if directory for xml exists
-        if (!xmlDirectory.exists())
-            return false;
-
-        return true;
     }
 }
 

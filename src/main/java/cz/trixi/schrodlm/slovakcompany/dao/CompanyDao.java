@@ -17,7 +17,6 @@ public class CompanyDao {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
-
     //upsert -> pokud už záznam existuje v DB pouze se aktualizuje a nebude se vytvářet nový
     String UPSERT_SQL = "INSERT INTO company (ico, dbModification,termination) " +
             "VALUES (?, ?, ?) " +
@@ -25,11 +24,12 @@ public class CompanyDao {
             "dbModification = EXCLUDED.dbModification, " +
             "termination = EXCLUDED.termination";
 
-    public void batchInsert( Collection<CompanyModel> companyModelCollection){
+    public void batchInsert( Collection<CompanyModel> companyModelCollection ) {
 
         List<Object[]> batch = companyModelCollection.stream()
-                .map( company -> new Object[] {company.ico(), company.dbModification(), company.termination()})
-                .collect( Collectors.toList());
+                .map( company -> new Object[] { company.ico(), company.dbModification(), company.termination() } )
+                .collect( Collectors.toList() );
 
-        jdbcTemplate.batchUpdate( UPSERT_SQL,batch );
+        jdbcTemplate.batchUpdate( UPSERT_SQL, batch );
+    }
 }
