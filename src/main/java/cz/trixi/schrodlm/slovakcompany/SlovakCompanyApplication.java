@@ -43,7 +43,6 @@ public class SlovakCompanyApplication {
 		//out file will be used to store the zipped content
 		File out = new File(destDir.getPath() + "/download.xml");
 
-		fileUtility.downloadSlovakRegister(out);
 
 
 		XMLBatchParser xmlBatchParser = new XMLBatchParser(out);
@@ -61,7 +60,6 @@ public class SlovakCompanyApplication {
 		if(!zippedInitBatchesDirectory.exists())
 			if(!zippedInitBatchesDirectory.mkdir()) throw new RuntimeException("Creating zipped batch directory failed");
 
-		fileUtility.downloadBatchCollection(init_batches, zippedInitBatchesDirectory);
 
 		//Unzip downloaded batch files
 		File initBatchesDirectory = new File(destDir.getPath() + "/batch-init");

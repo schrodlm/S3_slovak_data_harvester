@@ -20,8 +20,6 @@ public class FileUtility {
 
     Logger log = LoggerFactory.getLogger( getClass() );
 
-    final private String batchMetaDataLink = "https://frkqbrydxwdp.compat.objectstorage.eu-frankfurt-1.oraclecloud.com/susr-rpo";
-
     private static final int BUFFER_SIZE = 4096;
 
 
@@ -31,6 +29,11 @@ public class FileUtility {
 
         for( File file : sourceDir.listFiles())
         {
+            if(file.isDirectory())
+            {
+                unzipDirectory( file, destDir );
+                continue;
+            }
             //files should only be GZIP
             if(!isGZIP(file)){
              log.warn( "File " + file.getName() + " is not a GZIP file, skipping it..." );

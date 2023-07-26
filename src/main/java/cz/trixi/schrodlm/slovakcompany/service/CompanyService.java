@@ -1,39 +1,41 @@
 package cz.trixi.schrodlm.slovakcompany.service;
 
+import cz.trixi.schrodlm.slovakcompany.file.FileUtility;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 @Service
 public class CompanyService {
-    @Value( "${zipDir}" )
-    public String zipDir;
 
-    @Value("${xmlDir}")
-    public String xmlDir;
-    public void persistCompany(){
 
-    };
+    @Autowired
+    CompanyS3Handler companyS3Handler;
 
-    public void updateCompanies(){
+    @Autowired
+    CompanyFileService companyFileService;
+
+    public void persistCompany() {
 
     }
 
 
-    public boolean directoriesExistCheck(){
-        File xmlDirectory = new File(xmlDir);
-        File zipDirectory = new File(zipDir);
+    public void updateCompanies() {
 
-
-        //Checks if directory for zipped files exists
-        if(!zipDirectory.exists())
-            return false;
-        //Checks if directory for xml exists
-        if (!xmlDirectory.exists())
-            return false;
-
-        return true;
     }
+
+    public void downloadAndParseAllObjects() {
+        companyS3Handler.downloadAllObjects();
+        companyFileService.unzipAllBatches();
+        companyFileService.unzipTodaysBatch();
+    }
+
+
+
 
 }

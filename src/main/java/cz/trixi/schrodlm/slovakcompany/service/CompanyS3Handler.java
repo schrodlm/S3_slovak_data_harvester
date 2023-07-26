@@ -132,7 +132,7 @@ public class CompanyS3Handler {
                 .key( key )
                 .build();
         log.info( "Downloading today's batch: " + key );
-        s3Client.getObject( s3ObjectReq, ResponseTransformer.toFile( Paths.get( zipDir ).resolve( "daily_batch_" + formattedDate + ".json.gz") ) );
+        s3Client.getObject( s3ObjectReq, ResponseTransformer.toFile( Paths.get( zipDir ).resolve( CompanyFileService.getTodaysBatchName()) ) );
     }
 
 

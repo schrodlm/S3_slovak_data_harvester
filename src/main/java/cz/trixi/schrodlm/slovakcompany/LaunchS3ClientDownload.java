@@ -1,5 +1,6 @@
 package cz.trixi.schrodlm.slovakcompany;
 
+import cz.trixi.schrodlm.slovakcompany.service.CompanyService;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -21,7 +22,10 @@ public class LaunchS3ClientDownload {
 
 		//Download all zip objects
 		CompanyS3Handler companyS3Handler = context.getBean( CompanyS3Handler.class );
-		companyS3Handler.downloadAllObjects();
+
+		CompanyService companyService = context.getBean( CompanyService.class );
+
+		companyService.downloadAndParseAllObjects();
 
 		companyS3Handler.downloadTodaysBatch();
 		//Unzip downloaded batch files
