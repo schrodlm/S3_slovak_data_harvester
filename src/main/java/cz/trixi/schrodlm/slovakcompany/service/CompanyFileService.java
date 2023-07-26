@@ -8,8 +8,6 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Service
 public class CompanyFileService {
@@ -37,7 +35,7 @@ public class CompanyFileService {
 
     public void unzipTodaysBatch() {
 
-        String todaysBatchName = CompanyService.getTodaysBatchName();
+        String todaysBatchName = CompanyService.getTodaysBatchZippedName();
 
         try {
             fileUtility.unzipGZIPFile(

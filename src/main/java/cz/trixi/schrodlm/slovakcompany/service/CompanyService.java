@@ -1,12 +1,8 @@
 package cz.trixi.schrodlm.slovakcompany.service;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -45,10 +41,19 @@ public class CompanyService {
         companyFileService.unzipTodaysBatch();
     }
 
-    public static String getTodaysBatchName() {
+    public static String getTodaysBatchZippedName() {
         // Format the date as "yyyy-MM-dd" so it is formatted according to a key on file storage
         String formattedDate = LocalDateTime.now().format( DateTimeFormatter.ofPattern( "yyyy-MM-dd" ) );
         String fileName = "todays_batch_" + formattedDate + ".json.gz";
+
+        return fileName;
+    }
+
+
+    public static String getTodaysBatchName() {
+        // Format the date as "yyyy-MM-dd" so it is formatted according to a key on file storage
+        String formattedDate = LocalDateTime.now().format( DateTimeFormatter.ofPattern( "yyyy-MM-dd" ) );
+        String fileName = "todays_batch_" + formattedDate + ".json";
 
         return fileName;
     }

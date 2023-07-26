@@ -132,7 +132,7 @@ public class CompanyS3Handler {
                 .key( key )
                 .build();
         log.info( "Downloading today's batch: " + key );
-        s3Client.getObject( s3ObjectReq, ResponseTransformer.toFile( Paths.get( zipDir ).resolve( CompanyService.getTodaysBatchName()) ) );
+        s3Client.getObject( s3ObjectReq, ResponseTransformer.toFile( Paths.get( zipDir ).resolve( CompanyService.getTodaysBatchZippedName()) ) );
     }
 
 
