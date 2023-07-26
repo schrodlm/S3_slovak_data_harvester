@@ -1,6 +1,6 @@
 package cz.trixi.schrodlm.slovakcompany.service;
 
-import cz.trixi.schrodlm.slovakcompany.model.CompanyMetadata;
+import cz.trixi.schrodlm.slovakcompany.model.BatchMetadata;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +59,7 @@ public class CompanyS3Handler {
     /**
      * Retrieves metadata about an s3 object
      */
-    public CompanyMetadata retrieveMetadata( S3Object s3Object ) {
+    public BatchMetadata retrieveMetadata( S3Object s3Object ) {
 
         // Retrieving basic metadata about object
         String key_string = s3Object.key();
@@ -68,7 +68,7 @@ public class CompanyS3Handler {
         String eTag = s3Object.eTag();
         String storageClass = s3Object.storageClassAsString();
 
-        CompanyMetadata companyMetadata = new CompanyMetadata( key_string, lastModified, eTag, size, storageClass );
+        BatchMetadata companyMetadata = new BatchMetadata( key_string, lastModified, eTag, size, storageClass );
         return companyMetadata;
     }
 
@@ -76,7 +76,7 @@ public class CompanyS3Handler {
      * Downloads all objects (zipped JSONs containing info about companies) from an S3 bucket and saves them as individual files
      * in the specified zipDir.
      */
-    public void downloadAllObjects() {
+    public void downloadAllBatches() {
 
         // Create a ListObjectsV2Request object
         ListObjectsV2Request listObjectsReqManual = ListObjectsV2Request.builder()
@@ -112,7 +112,7 @@ public class CompanyS3Handler {
             s3Client.getObject( objectRequest, ResponseTransformer.toFile( targetPath ) );
 
             //Retrieve metadata
-            CompanyMetadata companyMetadata = retrieveMetadata( companiesInfoFile );
+            BatchMetadata companyMetadata = retrieveMetadata( companiesInfoFile );
 
             log.info( "Downloaded object: " + companiesInfoFile.key() );
         }
@@ -132,7 +132,7 @@ public class CompanyS3Handler {
                 .key( key )
                 .build();
         log.info( "Downloading today's batch: " + key );
-        s3Client.getObject( s3ObjectReq, ResponseTransformer.toFile( Paths.get( zipDir ).resolve( CompanyFileService.getTodaysBatchName()) ) );
+        s3Client.getObject( s3ObjectReq, ResponseTransformer.toFile( Paths.get( zipDir ).resolve( CompanyService.getTodaysBatchName()) ) );
     }
 
 

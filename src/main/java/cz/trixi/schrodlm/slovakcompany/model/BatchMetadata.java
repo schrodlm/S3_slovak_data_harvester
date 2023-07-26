@@ -8,7 +8,6 @@ import java.time.Instant;
  */
 
 
-// TODO: Could be a record
-public record CompanyMetadata(String key,  Instant lastModified, String ETag, long size, String storageClass) {
+public record BatchMetadata(String key, Instant lastModified, String ETag, long size, String storageClass) {
 
 }

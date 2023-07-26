@@ -8,10 +8,13 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.util.StopWatch;
 import cz.trixi.schrodlm.slovakcompany.service.CompanyS3Handler;
 
+import java.io.File;
+import java.io.IOException;
+
 @SpringBootApplication
 public class LaunchS3ClientDownload {
 
-	public static void main( String[] args ) {
+	public static void main( String[] args ) throws IOException {
 		ApplicationContext context = new SpringApplicationBuilder( LaunchS3ClientDownload.class )
 				.web( WebApplicationType.NONE )
 				.run( args );
@@ -25,17 +28,12 @@ public class LaunchS3ClientDownload {
 
 		CompanyService companyService = context.getBean( CompanyService.class );
 
-		companyService.downloadAndParseAllObjects();
+		//companyService.downloadAndParseAllObjects();
 
-		companyS3Handler.downloadTodaysBatch();
-		//Unzip downloaded batch files
-		//		File initBatchesDirectory = new File("batches/unzipped-batch-init");
-		//		if(!initBatchesDirectory.exists())
-		//			if(!initBatchesDirectory.mkdir()) throw new RuntimeException("Creating batch directory failed");
+		//companyS3Handler.downloadTodaysBatch();
 
-		//		fileUtility.unzipDirectory( Paths.get("batches/batch-init").toFile(), initBatchesDirectory);
+		//companyService.dailyUpdate();
 
-		//Parse init batches (JSON) and push them into PostGIS database
 
 		// Benchmarking
 		stopWatch.stop();

@@ -37,7 +37,7 @@ public class CompanyFileService {
 
     public void unzipTodaysBatch() {
 
-        String todaysBatchName = getTodaysBatchName();
+        String todaysBatchName = CompanyService.getTodaysBatchName();
 
         try {
             fileUtility.unzipGZIPFile(
@@ -49,13 +49,6 @@ public class CompanyFileService {
         }
     }
 
-    public static String getTodaysBatchName() {
-        // Format the date as "yyyy-MM-dd" so it is formatted according to a key on file storage
-        String formattedDate = LocalDateTime.now().format( DateTimeFormatter.ofPattern( "yyyy-MM-dd" ) );
-        String fileName = "todays_batch_" + formattedDate + ".json.gz";
-
-        return fileName;
-    }
 
     public void unzipAllBatches() {
         unzipInitBatches();

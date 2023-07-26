@@ -1,12 +1,10 @@
 package cz.trixi.schrodlm.slovakcompany.dao;
 
-import cz.trixi.schrodlm.slovakcompany.model.CompanyMetadata;
-import cz.trixi.schrodlm.slovakcompany.model.CompanyModel;
+import cz.trixi.schrodlm.slovakcompany.model.BatchModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,19 +15,14 @@ public class CompanyDao {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
-    //upsert -> pokud už záznam existuje v DB pouze se aktualizuje a nebude se vytvářet nový
-    String UPSERT_SQL = "INSERT INTO company (ico, dbModification,termination) " +
-            "VALUES (?, ?, ?) " +
-            "ON CONFLICT (ico) DO UPDATE SET " +
-            "dbModification = EXCLUDED.dbModification, " +
-            "termination = EXCLUDED.termination";
+    String INSERT_SQL = "INSERT INTO company (batch, export_data,path_to_file) VALUE (?,?,?)";
 
-    public void batchInsert( Collection<CompanyModel> companyModelCollection ) {
+    public void batchInsert( Collection<BatchModel> batchModelCollection ) {
 
-        List<Object[]> batch = companyModelCollection.stream()
-                .map( company -> new Object[] { company.ico(), company.dbModification(), company.termination() } )
+        List<Object[]> batch = batchModelCollection.stream()
+                .map( company -> new Object[] { company.batchName(), company.exportDate(), company.pathToFile()} )
                 .collect( Collectors.toList() );
 
-        jdbcTemplate.batchUpdate( UPSERT_SQL, batch );
+        jdbcTemplate.batchUpdate( INSERT_SQL, batch );
     }
 }
