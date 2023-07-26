@@ -16,7 +16,7 @@ public class BatchServerService {
 
     public Resource serveTodaysBatch() {
 
-        String todaysBatch = CompanyService.getTodaysBatchName();
+        String todaysBatch = BatchService.getTodaysBatchName();
         Path todaysBatchPath = Paths.get( jsonDir ).resolve( todaysBatch).normalize();
         Resource resource;
 

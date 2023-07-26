@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 
 @Service
-public class CompanyFileService {
+public class BatchFileService {
 
     @Value("${zipDir}")
     public String zipDir;
@@ -35,7 +35,7 @@ public class CompanyFileService {
 
     public void unzipTodaysBatch() {
 
-        String todaysBatchName = CompanyService.getTodaysBatchZippedName();
+        String todaysBatchName = BatchService.getTodaysBatchZippedName();
 
         try {
             fileUtility.unzipGZIPFile(

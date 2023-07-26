@@ -1,14 +1,13 @@
 package cz.trixi.schrodlm.slovakcompany;
 
-import cz.trixi.schrodlm.slovakcompany.service.CompanyService;
+import cz.trixi.schrodlm.slovakcompany.service.BatchService;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.StopWatch;
-import cz.trixi.schrodlm.slovakcompany.service.CompanyS3Handler;
+import cz.trixi.schrodlm.slovakcompany.service.BatchS3Handler;
 
-import java.io.File;
 import java.io.IOException;
 
 @SpringBootApplication
@@ -24,9 +23,9 @@ public class LaunchS3ClientDownload {
 		stopWatch.start();
 
 		//Download all zip objects
-		CompanyS3Handler companyS3Handler = context.getBean( CompanyS3Handler.class );
+		BatchS3Handler batchS3Handler = context.getBean( BatchS3Handler.class );
 
-		CompanyService companyService = context.getBean( CompanyService.class );
+		BatchService batchService = context.getBean( BatchService.class );
 
 		//companyService.downloadAndParseAllObjects();
 

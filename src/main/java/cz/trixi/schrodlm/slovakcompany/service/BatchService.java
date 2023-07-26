@@ -7,13 +7,13 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Service
-public class CompanyService {
+public class BatchService {
 
     @Autowired
-    CompanyS3Handler companyS3Handler;
+    BatchS3Handler batchS3Handler;
 
     @Autowired
-    CompanyFileService companyFileService;
+    BatchFileService batchFileService;
 
     public void persistAllBatches() {
 
@@ -28,17 +28,17 @@ public class CompanyService {
      * Initialization - download all init and daily batches and unzippes them
      */
     public void downloadAndUnzipAllBatches() {
-        companyS3Handler.downloadAllBatches();
-        companyFileService.unzipAllBatches();
-        companyFileService.unzipTodaysBatch();
+        batchS3Handler.downloadAllBatches();
+        batchFileService.unzipAllBatches();
+        batchFileService.unzipTodaysBatch();
     }
 
     /**
      * Downloads today's update file, which contains
      */
     public void dailyUpdate() {
-        companyS3Handler.downloadTodaysBatch();
-        companyFileService.unzipTodaysBatch();
+        batchS3Handler.downloadTodaysBatch();
+        batchFileService.unzipTodaysBatch();
     }
 
     public static String getTodaysBatchZippedName() {

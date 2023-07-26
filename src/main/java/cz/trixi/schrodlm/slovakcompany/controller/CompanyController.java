@@ -1,7 +1,7 @@
 package cz.trixi.schrodlm.slovakcompany.controller;
 
 import cz.trixi.schrodlm.slovakcompany.service.BatchServerService;
-import cz.trixi.schrodlm.slovakcompany.service.CompanyService;
+import cz.trixi.schrodlm.slovakcompany.service.BatchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -16,7 +16,7 @@ public class CompanyController {
 
 
     @Autowired
-    CompanyService companyService;
+    BatchService batchService;
 
     @Autowired
     BatchServerService batchServerService;

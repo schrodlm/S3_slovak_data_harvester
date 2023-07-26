@@ -27,7 +27,7 @@ import java.time.format.DateTimeFormatter;
  * Handles all communication with SRPO S3 File Storage.
  */
 @Component
-public class CompanyS3Handler {
+public class BatchS3Handler {
     final public URI endpoint = URI.create( "https://compat.objectstorage.eu-frankfurt-1.oraclecloud.com/susr-rpo" );
 
     final public String bucket = "frkqbrydxwdp";
@@ -132,7 +132,7 @@ public class CompanyS3Handler {
                 .key( key )
                 .build();
         log.info( "Downloading today's batch: " + key );
-        s3Client.getObject( s3ObjectReq, ResponseTransformer.toFile( Paths.get( zipDir ).resolve( CompanyService.getTodaysBatchZippedName()) ) );
+        s3Client.getObject( s3ObjectReq, ResponseTransformer.toFile( Paths.get( zipDir ).resolve( BatchService.getTodaysBatchZippedName()) ) );
     }
 
 
