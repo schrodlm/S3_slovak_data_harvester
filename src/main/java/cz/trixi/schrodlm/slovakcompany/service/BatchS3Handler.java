@@ -1,6 +1,7 @@
 package cz.trixi.schrodlm.slovakcompany.service;
 
 import cz.trixi.schrodlm.slovakcompany.model.BatchMetadata;
+import cz.trixi.schrodlm.slovakcompany.model.BatchModel;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,14 +93,14 @@ public class BatchS3Handler {
 
         for ( S3Object companiesInfoFile : response.contents() ) {
 
-            log.info( "Downloading zipped file: " + companiesInfoFile.key() );
+            log.info( "Downloading zipped batch: " + companiesInfoFile.key() );
 
             // Prepare complete path
             Path targetPath = Paths.get( zipDir ).resolve( companiesInfoFile.key() );
 
             if ( Files.exists( targetPath ) ) {
 
-                log.info( "Object " + companiesInfoFile.key() + " has already been downloaded: " );
+                log.info( "Batch \"" + companiesInfoFile.key() + "\" has already been downloaded: " );
                 continue;
             }
 
@@ -111,10 +112,7 @@ public class BatchS3Handler {
             // Downloading object
             s3Client.getObject( objectRequest, ResponseTransformer.toFile( targetPath ) );
 
-            //Retrieve metadata
-            BatchMetadata companyMetadata = retrieveMetadata( companiesInfoFile );
-
-            log.info( "Downloaded object: " + companiesInfoFile.key() );
+            log.info( "Downloaded zipped batch: " + companiesInfoFile.key() );
         }
     }
 

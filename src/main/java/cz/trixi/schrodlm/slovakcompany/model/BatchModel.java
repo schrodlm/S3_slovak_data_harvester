@@ -1,7 +1,8 @@
 package cz.trixi.schrodlm.slovakcompany.model;
 
-import java.time.LocalDateTime;
+import java.nio.file.Path;
+import java.time.LocalDate;
 
-public record BatchModel(String batchName, LocalDateTime exportDate, String pathToFile) {
+public record BatchModel(String batchName, LocalDate exportDate, Path pathToFile) {
 
 }

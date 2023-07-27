@@ -1,10 +1,14 @@
 package cz.trixi.schrodlm.slovakcompany.service;
 
+import cz.trixi.schrodlm.slovakcompany.model.BatchModel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Service
 public class BatchService {
@@ -30,7 +34,24 @@ public class BatchService {
     public void downloadAndUnzipAllBatches() {
         batchS3Handler.downloadAllBatches();
         batchFileService.unzipAllBatches();
-        batchFileService.unzipTodaysBatch();
+    }
+
+
+    public void initialialSetup() {
+        //downloads all available batches from the cloud
+        batchS3Handler.downloadAllBatches();
+
+        //unzips all these batches
+        List<BatchModel> unzippedBatches = batchFileService.unzipAllBatches();
+
+        //persist these batches
+        persistBatches(unzippedBatches);
+    }
+
+    public void persistBatches(List<BatchModel> batches)
+    {
+
+        BatchModel batchModel;
     }
 
     /**
