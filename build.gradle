@@ -22,6 +22,9 @@ dependencies {
 	implementation 'software.amazon.awssdk:aws-core:2.20.69'
 
 	implementation group: 'org.simpleflatmapper', name: 'sfm-springjdbc', version: '8.2.3'
+
+	// https://mvnrepository.com/artifact/org.liquibase/liquibase-core
+	implementation 'org.liquibase:liquibase-core:4.20.0'
 }
 
 tasks.named('test') {
