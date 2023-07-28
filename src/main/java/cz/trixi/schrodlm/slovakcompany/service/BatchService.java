@@ -37,7 +37,7 @@ public class BatchService {
     }
 
 
-    public void initialialSetup() {
+    public void initialSetup() {
         //downloads all available batches from the cloud
         batchS3Handler.downloadAllBatches();
 

@@ -4,12 +4,10 @@ import cz.trixi.schrodlm.slovakcompany.file.FileUtility;
 import cz.trixi.schrodlm.slovakcompany.model.BatchModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +31,7 @@ public class BatchFileService {
      * @return A list of pairs where each pair consists of the unzipped batch file's name and the unzipped file's path.
      */
     public List<BatchModel> unzipInitBatches() {
-        return fileUtility.deepUnzipDirectory(
+        return fileUtility.deepUnzipBatchDirectory(
                 new File( Paths.get( zipDir ).resolve( "batch-init" ).toUri() ),
                 new File( Paths.get( xmlDir ).resolve( "batch-init" ).toUri() ) );
     }
@@ -45,7 +43,7 @@ public class BatchFileService {
      * @return A list of pairs where each pair consists of the unzipped daily batch file's name and the unzipped file's path.
      */
     public List<BatchModel> unzipDailyBatches() {
-        return fileUtility.deepUnzipDirectory(
+        return fileUtility.deepUnzipBatchDirectory(
                 new File( Paths.get( zipDir ).resolve( "batch-daily" ).toUri() ),
                 new File( Paths.get( xmlDir ).resolve( "batch-daily" ).toUri() ) );
     }

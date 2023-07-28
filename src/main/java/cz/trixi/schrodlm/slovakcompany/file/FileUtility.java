@@ -5,13 +5,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.nio.file.Path;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -26,14 +24,14 @@ public class FileUtility {
     private static final int BUFFER_SIZE = 4096;
 
     /**
-     * Recursively unzips GZIP files from a source directory (and its subdirectories) to a destination directory.
+     * Recursively unzips GZIP batches from a source directory (and its subdirectories) to a destination directory.
      *
      * @param sourceDir The source directory containing GZIP files.
      * @param destDir The destination directory where unzipped files will be saved.
-     * @return A list of pairs where each pair consists of the unzipped file's name and the unzipped file's path.
+     * @return Information about the unzipped batches
      * @throws RuntimeException If the source path is not a directory or if there's an error during unzipping.
      */
-    public List<BatchModel> deepUnzipDirectory( File sourceDir, File destDir ) {
+    public List<BatchModel> deepUnzipBatchDirectory( File sourceDir, File destDir ) {
         if ( !sourceDir.isDirectory() )
             throw new RuntimeException( "Unable to unzip since path is not a directory" );
 
@@ -42,7 +40,7 @@ public class FileUtility {
 
         for ( File file : sourceDir.listFiles() ) {
             if ( file.isDirectory() ) {
-                deepUnzipDirectory( file, destDir );
+                deepUnzipBatchDirectory( file, destDir );
                 continue;
             }
             //files should only be GZIP
@@ -65,8 +63,6 @@ public class FileUtility {
     /**
      * Checks if file is a GZIP by reading the "magic bytes", in GZIP it should be hex signature of "1F 8B"
      *
-     * @param file - file to check
-     * @return
      */
     public boolean isGZIP( File file ) {
         try (FileInputStream fis = new FileInputStream( file.getPath() )) {
@@ -82,10 +78,12 @@ public class FileUtility {
     }
 
     /**
-     * Recursively unzips all content of the zipped file and saves its structure (paths of directories and files)
+     * Recursively unzips all content of the zipped batch and saves its structure (paths of directories and files)
+     *
      *
      * @param zippedBatch - zipped file
      * @param destDirectory - destination directory
+     * @return information about the unzipped batch
      */
     public BatchModel unzipBatch( File zippedBatch, File destDirectory ) throws IOException {
 
@@ -118,6 +116,9 @@ public class FileUtility {
         return new BatchModel( unzippedBatchName, exportDate, batchPath );
     }
 
+    /**
+     * Extracts export date from the name of the batch
+     */
     private LocalDate parseDateFromBatchName(String batchName){
         // Use regex to extract date
         Pattern pattern = Pattern.compile("(\\d{4}-\\d{2}-\\d{2})");

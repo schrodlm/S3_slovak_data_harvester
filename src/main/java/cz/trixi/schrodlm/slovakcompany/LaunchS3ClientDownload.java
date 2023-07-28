@@ -33,6 +33,8 @@ public class LaunchS3ClientDownload {
 
 		//companyService.dailyUpdate();
 
+		batchService.initialSetup();
+
 
 		// Benchmarking
 		stopWatch.stop();
