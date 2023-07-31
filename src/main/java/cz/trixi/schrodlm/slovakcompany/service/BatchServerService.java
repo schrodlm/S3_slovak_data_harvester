@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -25,7 +26,7 @@ public class BatchServerService {
     BatchDao batchDao;
 
     /**
-     *  Serves the batch file for today as a Resource.
+     * Serves the batch file for today as a Resource.
      *
      * @return Returns the file as a Resource object corresponding to today's batch.
      * @throws RuntimeException if there's an error loading today's batch file or if the file doesn't exist.
@@ -33,16 +34,22 @@ public class BatchServerService {
     public Resource serveTodaysBatch() {
 
         String todaysBatch = BatchService.getTodaysBatchName();
-        Path todaysBatchPath = Paths.get( jsonDir ).resolve( todaysBatch).normalize();
+        Path todaysBatchPath = Paths.get( jsonDir ).resolve( todaysBatch ).normalize();
 
         return fileUtility.serveFile( todaysBatchPath );
     }
 
-
-    public List<Resource> serveAllBatches(){
+    public List<Resource> serveAllBatches() {
 
         List<Path> paths = batchDao.getAllBatches();
-        return null;
+        List<Resource> resources = new ArrayList<>();
+
+        for ( Path path : paths ) {
+            Resource toAdd = fileUtility.serveFile( path );
+            resources.add( toAdd );
+        }
+
+        return resources;
     }
 
 }

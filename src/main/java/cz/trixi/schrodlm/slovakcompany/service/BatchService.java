@@ -1,5 +1,6 @@
 package cz.trixi.schrodlm.slovakcompany.service;
 
+import cz.trixi.schrodlm.slovakcompany.dao.BatchDao;
 import cz.trixi.schrodlm.slovakcompany.model.BatchModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
@@ -18,6 +19,9 @@ public class BatchService {
 
     @Autowired
     BatchFileService batchFileService;
+
+    @Autowired
+    BatchDao batchDao;
 
     public void persistAllBatches() {
 
@@ -50,8 +54,7 @@ public class BatchService {
 
     public void persistBatches(List<BatchModel> batches)
     {
-
-        BatchModel batchModel;
+        batchDao.batchInsert( batches );
     }
 
     /**

@@ -1,0 +1,1 @@
+ALTER TABLE batch_info RENAME COLUMN exportDate TO export_date;
