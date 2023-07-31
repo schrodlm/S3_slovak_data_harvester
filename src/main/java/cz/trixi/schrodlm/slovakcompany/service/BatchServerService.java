@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +40,9 @@ public class BatchServerService {
         return fileUtility.serveFile( todaysBatchPath );
     }
 
+    /**
+     * Serve all batches available in the database as a list of Resources
+     */
     public List<Resource> serveAllBatches() {
 
         List<Path> paths = batchDao.getAllBatches();
@@ -52,4 +56,21 @@ public class BatchServerService {
         return resources;
     }
 
+    /**
+     *
+     * @param date
+     * @return
+     */
+    public List<Resource> serveBatchesSince( LocalDate date )
+    {
+        List<Path> paths = batchDao.getBatchesSince(date);
+        List<Resource> resources = new ArrayList<>();
+
+        for(Path path : paths) {
+            Resource toAdd = fileUtility.serveFile( path );
+            resources.add(toAdd);
+        }
+
+        return resources;
+    }
 }
