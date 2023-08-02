@@ -128,4 +128,14 @@ public class BatchController {
                 .body( byteArrayResource );
     }
 
+    /**
+     *
+     */
+    @GetMapping("/dailyUpdate")
+    public void dailyUpdate()
+    {
+        log.info( "Starting daily update" );
+        batchService.dailyUpdate();
+    }
+
 }

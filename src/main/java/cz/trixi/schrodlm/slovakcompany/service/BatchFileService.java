@@ -2,6 +2,8 @@ package cz.trixi.schrodlm.slovakcompany.service;
 
 import cz.trixi.schrodlm.slovakcompany.file.FileUtility;
 import cz.trixi.schrodlm.slovakcompany.model.BatchModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,8 @@ public class BatchFileService {
 
     @Autowired
     FileUtility fileUtility;
+
+    Logger log = LoggerFactory.getLogger( getClass() );
 
     /**
      * Unzips all initial batch files located in the 'batch-init' subdirectory and saves them to the corresponding 'batch-init'
@@ -57,6 +61,8 @@ public class BatchFileService {
      * @throws RuntimeException If there's an error during the unzipping process.
      */
     public BatchModel unzipTodaysBatch() {
+
+        log.info( "Unzipping todays batch..." );
 
         String todaysBatchName = BatchService.getTodaysBatchZippedName();
 

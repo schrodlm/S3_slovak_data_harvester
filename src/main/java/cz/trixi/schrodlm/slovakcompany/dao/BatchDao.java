@@ -3,7 +3,6 @@ package cz.trixi.schrodlm.slovakcompany.dao;
 import cz.trixi.schrodlm.slovakcompany.model.BatchModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,7 +13,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.simpleflatmapper.jdbc.spring.JdbcTemplateMapperFactory;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -33,14 +31,15 @@ public class BatchDao {
     public void batchInsert( Collection<BatchModel> batchModelCollection ) {
 
         List<Object[]> batch = batchModelCollection.stream()
-                .map( company -> new Object[] { company.batchName(), company.exportDate(), company.pathToFile().toString() } )
+                .map( batchModel -> new Object[] { batchModel.batchName(), batchModel.exportDate(), batchModel.pathToFile().toString() } )
                 .collect( Collectors.toList() );
 
         jdbcTemplate.batchUpdate( INSERT_SQL, batch );
     }
 
     public void insert( BatchModel batchModel ) {
-        jdbcTemplate.update( INSERT_SQL, batchModel );
+        Object[] batchObj = new Object[] {batchModel.batchName(), batchModel.exportDate(), batchModel.pathToFile().toString()};
+        jdbcTemplate.update( INSERT_SQL, batchObj );
     }
 
     public List<Path> getAllBatches() {

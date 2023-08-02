@@ -69,7 +69,8 @@ public class BatchService {
      */
     public void dailyUpdate() {
         batchS3Handler.downloadTodaysBatch();
-        batchFileService.unzipTodaysBatch();
+        BatchModel todaysBatch = batchFileService.unzipTodaysBatch();
+        persistBatches( todaysBatch );
     }
 
 
@@ -81,7 +82,7 @@ public class BatchService {
      */
     public static String getTodaysBatchZippedName() {
         // Format the date as "yyyy-MM-dd" so it is formatted according to a key on file storage
-        String formattedDate = LocalDateTime.now().format( DateTimeFormatter.ofPattern( "yyyy-MM-dd" ) );
+        String formattedDate = LocalDate.now().format( DateTimeFormatter.ofPattern( "yyyy-MM-dd" ) );
         String fileName = "todays_batch_" + formattedDate + ".json.gz";
 
         return fileName;
@@ -94,7 +95,7 @@ public class BatchService {
      */
     public static String getTodaysBatchName() {
         // Format the date as "yyyy-MM-dd" so it is formatted according to a key on file storage
-        String formattedDate = LocalDateTime.now().format( DateTimeFormatter.ofPattern( "yyyy-MM-dd" ) );
+        String formattedDate = LocalDate.now().format( DateTimeFormatter.ofPattern( "yyyy-MM-dd" ) );
         String fileName = "todays_batch_" + formattedDate + ".json";
 
         return fileName;
