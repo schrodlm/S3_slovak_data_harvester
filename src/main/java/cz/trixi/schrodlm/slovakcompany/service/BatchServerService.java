@@ -34,7 +34,7 @@ public class BatchServerService {
      */
     public Resource serveTodaysBatch() {
 
-        String todaysBatch = BatchService.getTodaysBatchName();
+        String todaysBatch = BatchService.getBatchNameFrom(LocalDate.now());
         Path todaysBatchPath = Paths.get( jsonDir ).resolve( todaysBatch ).normalize();
 
         return fileUtility.serveFile( todaysBatchPath );

@@ -71,44 +71,36 @@ public class BatchService {
     public void downloadAndPersistBatchFrom(LocalDate date)
     {
         batchS3Handler.downloadBatchFrom( date );
-        BatchModel batch = batchFileService.unzipBatchFrom(date);
+        BatchModel batch = batchFileService.unzipUpdateBatchForDate(date);
         persistBatches( batch );
     }
 
     //====================== STATIC METHODS =============================
 
     /**
-     * Generates the zipped file name for today's batch based on the current date.
-     * The format is "todays_batch_YYYY-MM-DD.json.gz".
+     * Generates the batch file name for a given date.
+     *
+     * The generated file name is of the format "batch-daily/actual_yyyy-MM-dd.json",
+     * where "yyyy-MM-dd" corresponds to the provided date. This format is consistent
+     * with the key naming convention in file storage.
+     *
+     * @param date The LocalDate object representing the desired date.
+     * @return A string representing the file name for the zipped batch for the given date.
      */
-    public static String getTodaysBatchZippedName() {
+    public static String getBatchNameFrom(LocalDate date){
         // Format the date as "yyyy-MM-dd" so it is formatted according to a key on file storage
-        String formattedDate = LocalDate.now().format( DateTimeFormatter.ofPattern( "yyyy-MM-dd" ) );
-        String fileName = "batch-daily/actual_" + formattedDate + ".json.gz";
-
-        return fileName;
-    }
-
-
-    /**
-     * Generates the file name for today's batch based on the current date.
-     * The format is "todays_batch_YYYY-MM-DD.json".
-     */
-    public static String getTodaysBatchName() {
-        // Format the date as "yyyy-MM-dd" so it is formatted according to a key on file storage
-        String formattedDate = LocalDate.now().format( DateTimeFormatter.ofPattern( "yyyy-MM-dd" ) );
+        String formattedDate = date.format( DateTimeFormatter.ofPattern( "yyyy-MM-dd" ) );
         String fileName = "batch-daily/actual_" + formattedDate + ".json";
 
         return fileName;
     }
 
+    /**
+     * Generates the zipped batch file name for a given date.
+     */
     public static String getZippedBatchNameFrom(LocalDate date){
 
-        // Format the date as "yyyy-MM-dd" so it is formatted according to a key on file storage
-        String formattedDate = date.format( DateTimeFormatter.ofPattern( "yyyy-MM-dd" ) );
-        String fileName = "batch-daily/actual_" + formattedDate + ".json.gz";
-
-        return fileName;
+        return getBatchNameFrom( date ) + ".gz";
     }
 
 }

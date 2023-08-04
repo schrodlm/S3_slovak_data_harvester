@@ -65,7 +65,7 @@ public class BatchFileService {
 
         log.info( "Unzipping todays batch..." );
 
-        String todaysBatchName = BatchService.getTodaysBatchZippedName();
+        String todaysBatchName = BatchService.getZippedBatchNameFrom(LocalDate.now());
 
         try {
             return fileUtility.unzipBatch(
@@ -86,8 +86,8 @@ public class BatchFileService {
         return unzippedBatches;
     }
 
-    public BatchModel unzipBatchFrom( LocalDate date){
-        log.info( "Unzipping batch from {}", date.toString() );
+    public BatchModel unzipUpdateBatchForDate( LocalDate date){
+        log.info( "Unzipping {} batch...", date.toString() );
 
         String batchName = BatchService.getZippedBatchNameFrom(date);
 

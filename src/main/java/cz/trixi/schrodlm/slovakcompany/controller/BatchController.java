@@ -138,11 +138,13 @@ public class BatchController {
     }
 
     /**
-     * Gets a daily batch from a specific date and persists it
-     * @param dateStr
+     * Downloads and persists a batch based on the provided date.
+     *
+     * @param dateStr The date string in the format "d-M-yyyy" indicating the batch's date.
+     *                e.g., "5-1-2023" for January 5, 2023.
      */
-    @GetMapping("/setBatch/{dateStr}")
-    public void setBatch(@PathVariable String dateStr)
+    @GetMapping("/downloadBatch/{dateStr}")
+    public void downloadBatchForDate(@PathVariable String dateStr)
     {
         log.info( "Getting a batch from date: {}", dateStr );
         LocalDate date = LocalDate.parse(dateStr,DateTimeFormatter.ofPattern( "d-M-yyyy" ));
