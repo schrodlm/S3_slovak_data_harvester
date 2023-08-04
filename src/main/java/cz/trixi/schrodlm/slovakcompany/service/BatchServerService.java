@@ -5,7 +5,6 @@ import cz.trixi.schrodlm.slovakcompany.file.FileUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Path;
@@ -17,7 +16,7 @@ import java.util.List;
 @Service
 public class BatchServerService {
 
-    @Value("${xmlDir}")
+    @Value("${unzippedDir}")
     public String jsonDir;
 
     @Autowired
@@ -34,7 +33,7 @@ public class BatchServerService {
      */
     public Resource serveTodaysBatch() {
 
-        String todaysBatch = BatchService.getBatchNameFrom(LocalDate.now());
+        String todaysBatch = BatchFileService.getBatchNameFrom(LocalDate.now());
         Path todaysBatchPath = Paths.get( jsonDir ).resolve( todaysBatch ).normalize();
 
         return fileUtility.serveFile( todaysBatchPath );

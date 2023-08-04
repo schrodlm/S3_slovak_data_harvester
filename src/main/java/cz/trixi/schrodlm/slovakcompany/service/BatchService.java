@@ -2,11 +2,13 @@ package cz.trixi.schrodlm.slovakcompany.service;
 
 import cz.trixi.schrodlm.slovakcompany.dao.BatchDao;
 import cz.trixi.schrodlm.slovakcompany.model.BatchModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -20,6 +22,8 @@ public class BatchService {
 
     @Autowired
     BatchDao batchDao;
+
+    Logger log = LoggerFactory.getLogger( getClass() );
 
     /**
      * Initialization - download all init and daily batches and unzips them
@@ -47,7 +51,12 @@ public class BatchService {
      * @param batches - The list of batch models to be persisted.
      */
     public void persistBatches( List<BatchModel> batches ) {
-        batchDao.batchInsert( batches );
+        try {
+            batchDao.batchInsert( batches );
+        }
+        catch ( DataIntegrityViolationException e ) {
+            log.warn(e.getMessage());
+        }
     }
 
     /**
@@ -64,43 +73,21 @@ public class BatchService {
      */
     public void dailyUpdate() {
         batchS3Handler.downloadTodaysBatch();
-        BatchModel todaysBatch = batchFileService.unzipTodaysBatch();
-        persistBatches( todaysBatch );
+        try {
+            BatchModel todaysBatch = batchFileService.unzipTodaysBatch();
+            persistBatches( todaysBatch );
+        }
+        catch ( IllegalStateException|DataIntegrityViolationException e) {
+            log.warn( e.getMessage() );
+            return;
+        }
     }
 
-    public void downloadAndPersistBatchFrom(LocalDate date)
+    public void downloadAndPersistUpdateBatchForDate(LocalDate date)
     {
         batchS3Handler.downloadBatchFrom( date );
         BatchModel batch = batchFileService.unzipUpdateBatchForDate(date);
         persistBatches( batch );
-    }
-
-    //====================== STATIC METHODS =============================
-
-    /**
-     * Generates the batch file name for a given date.
-     *
-     * The generated file name is of the format "batch-daily/actual_yyyy-MM-dd.json",
-     * where "yyyy-MM-dd" corresponds to the provided date. This format is consistent
-     * with the key naming convention in file storage.
-     *
-     * @param date The LocalDate object representing the desired date.
-     * @return A string representing the file name for the zipped batch for the given date.
-     */
-    public static String getBatchNameFrom(LocalDate date){
-        // Format the date as "yyyy-MM-dd" so it is formatted according to a key on file storage
-        String formattedDate = date.format( DateTimeFormatter.ofPattern( "yyyy-MM-dd" ) );
-        String fileName = "batch-daily/actual_" + formattedDate + ".json";
-
-        return fileName;
-    }
-
-    /**
-     * Generates the zipped batch file name for a given date.
-     */
-    public static String getZippedBatchNameFrom(LocalDate date){
-
-        return getBatchNameFrom( date ) + ".gz";
     }
 
 }

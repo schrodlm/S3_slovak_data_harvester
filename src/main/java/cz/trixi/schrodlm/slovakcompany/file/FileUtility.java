@@ -8,6 +8,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -87,9 +88,8 @@ public class FileUtility {
      */
     public BatchModel unzipBatch( File zippedBatch, File destDirectory ) throws IOException {
 
-        System.out.println( "Unzipping file..." );
 
-        String unzippedBatchName = zippedBatch.getName().replace( "json.gz", "json" );
+        String unzippedBatchName = getUnzippedFileName( zippedBatch.getName() );
         LocalDate exportDate = parseDateFromBatchName( unzippedBatchName );
         Path batchPath = Path.of( destDirectory + File.separator + unzippedBatchName );
 
@@ -103,7 +103,7 @@ public class FileUtility {
                 fos.write( buffer, 0, len );
             }
 
-            System.out.println( "File " + zippedBatch.getName() + " successfully unzipped" );
+            log.info( "File " + zippedBatch.getName() + " successfully unzipped" );
 
             //closing resources
             fos.close();
@@ -175,6 +175,13 @@ public class FileUtility {
         }
         directory.delete();
 
+    }
+
+    public static String getUnzippedFileName(String zippedFileName){
+        if(zippedFileName.endsWith( ".gz" )){
+            return zippedFileName.substring( 0, zippedFileName.length() - 3 );
+        }
+        throw new IllegalArgumentException("Provided file name does not have a .gz extension: " + zippedFileName);
     }
 }
 

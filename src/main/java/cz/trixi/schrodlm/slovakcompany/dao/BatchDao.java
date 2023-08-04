@@ -26,7 +26,8 @@ public class BatchDao {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    String INSERT_SQL = "INSERT INTO batch_info (batch_name, export_date,path_to_file) VALUES (?,?,?)";
+    private String INSERT_SQL = "INSERT INTO batch_info (batch_name, export_date,path_to_file) VALUES (?,?,?)";
+
 
     public void batchInsert( Collection<BatchModel> batchModelCollection ) {
 
@@ -38,6 +39,7 @@ public class BatchDao {
     }
 
     public void insert( BatchModel batchModel ) {
+
         Object[] batchObj = new Object[] {batchModel.batchName(), batchModel.exportDate(), batchModel.pathToFile().toString()};
         jdbcTemplate.update( INSERT_SQL, batchObj );
     }

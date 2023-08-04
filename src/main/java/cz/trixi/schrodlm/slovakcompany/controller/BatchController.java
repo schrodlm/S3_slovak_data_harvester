@@ -36,6 +36,14 @@ public class BatchController {
     BatchServerService batchServerService;
 
     Logger log = LoggerFactory.getLogger( getClass() );
+
+
+    @GetMapping("/init")
+    public void initialSetup()
+    {
+        batchService.initialSetup();
+    }
+
     /**
      * Downloads batch corresponding to today's date
      */
@@ -149,7 +157,7 @@ public class BatchController {
         log.info( "Getting a batch from date: {}", dateStr );
         LocalDate date = LocalDate.parse(dateStr,DateTimeFormatter.ofPattern( "d-M-yyyy" ));
 
-        batchService.downloadAndPersistBatchFrom( date );
+        batchService.downloadAndPersistUpdateBatchForDate( date );
 
     }
 

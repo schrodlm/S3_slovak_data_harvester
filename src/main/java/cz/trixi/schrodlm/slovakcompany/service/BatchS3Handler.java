@@ -1,7 +1,6 @@
 package cz.trixi.schrodlm.slovakcompany.service;
 
 import cz.trixi.schrodlm.slovakcompany.model.BatchMetadata;
-import cz.trixi.schrodlm.slovakcompany.model.BatchModel;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +21,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
@@ -39,7 +37,7 @@ public class BatchS3Handler {
     @Value("${zipDir}")
     public String zipDir;
 
-    @Value("${xmlDir}")
+    @Value("${unzippedDir}")
     public String xmlDir;
 
     Logger log = LoggerFactory.getLogger( getClass() );
@@ -101,7 +99,7 @@ public class BatchS3Handler {
 
             if ( Files.exists( targetPath ) ) {
 
-                log.info( "Batch \"" + companiesInfoFile.key() + "\" has already been downloaded: " );
+                log.info( "Batch \"" + companiesInfoFile.key() + "\" has already been downloaded... " );
                 continue;
             }
 
@@ -118,32 +116,28 @@ public class BatchS3Handler {
     }
 
     /**
-     * Download a zipped file containing changes to companies from today
+     * Download a zipped file containing changes to companies from specified date
      */
-    public void downloadTodaysBatch() {
-
-        // Format the date as "yyyy-MM-dd" so it is formatted according to a key on file storage
-        String formattedDate = LocalDateTime.now().format( DateTimeFormatter.ofPattern( "yyyy-MM-dd" ) );
-        String key = "batch-daily/actual_" + formattedDate + ".json.gz";
-
-        GetObjectRequest s3ObjectReq = GetObjectRequest.builder()
-                .bucket( bucket )
-                .key( key )
-                .build();
-        log.info( "Downloading today's batch: " + key );
-        s3Client.getObject( s3ObjectReq, ResponseTransformer.toFile( Paths.get( zipDir ).resolve( key ) ) );
-    }
-
     public void downloadBatchFrom( LocalDate date ) {
         String formattedDate = date.format( DateTimeFormatter.ofPattern( "yyyy-MM-dd" ) );
         String key = "batch-daily/actual_" + formattedDate + ".json.gz";
 
-        GetObjectRequest s3ObectReq = GetObjectRequest.builder()
-                .bucket( bucket )
-                .key( key )
-                .build();
+        if ( Files.exists( Paths.get( zipDir ).resolve( key ) ) )
+        {
+            log.warn( "File \"{}\" already exists.", key);
+            return;
+        }
+
+            GetObjectRequest s3ObectReq = GetObjectRequest.builder()
+                    .bucket( bucket )
+                    .key( key )
+                    .build();
         log.info( "Downloading {} batch...", formattedDate );
         s3Client.getObject( s3ObectReq, ResponseTransformer.toFile( Paths.get( zipDir ).resolve( key ) ) );
     }
 
+    public void downloadTodaysBatch() {
+        downloadBatchFrom( LocalDate.now() );
+    }
 }
+
