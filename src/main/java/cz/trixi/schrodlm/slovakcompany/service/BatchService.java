@@ -2,15 +2,10 @@ package cz.trixi.schrodlm.slovakcompany.service;
 
 import cz.trixi.schrodlm.slovakcompany.dao.BatchDao;
 import cz.trixi.schrodlm.slovakcompany.model.BatchModel;
-import jakarta.annotation.Resources;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.Path;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -73,6 +68,12 @@ public class BatchService {
         persistBatches( todaysBatch );
     }
 
+    public void downloadAndPersistBatchFrom(LocalDate date)
+    {
+        batchS3Handler.downloadBatchFrom( date );
+        BatchModel batch = batchFileService.unzipBatchFrom(date);
+        persistBatches( batch );
+    }
 
     //====================== STATIC METHODS =============================
 
@@ -83,7 +84,7 @@ public class BatchService {
     public static String getTodaysBatchZippedName() {
         // Format the date as "yyyy-MM-dd" so it is formatted according to a key on file storage
         String formattedDate = LocalDate.now().format( DateTimeFormatter.ofPattern( "yyyy-MM-dd" ) );
-        String fileName = "todays_batch_" + formattedDate + ".json.gz";
+        String fileName = "batch-daily/actual_" + formattedDate + ".json.gz";
 
         return fileName;
     }
@@ -96,7 +97,16 @@ public class BatchService {
     public static String getTodaysBatchName() {
         // Format the date as "yyyy-MM-dd" so it is formatted according to a key on file storage
         String formattedDate = LocalDate.now().format( DateTimeFormatter.ofPattern( "yyyy-MM-dd" ) );
-        String fileName = "todays_batch_" + formattedDate + ".json";
+        String fileName = "batch-daily/actual_" + formattedDate + ".json";
+
+        return fileName;
+    }
+
+    public static String getZippedBatchNameFrom(LocalDate date){
+
+        // Format the date as "yyyy-MM-dd" so it is formatted according to a key on file storage
+        String formattedDate = date.format( DateTimeFormatter.ofPattern( "yyyy-MM-dd" ) );
+        String fileName = "batch-daily/actual_" + formattedDate + ".json.gz";
 
         return fileName;
     }

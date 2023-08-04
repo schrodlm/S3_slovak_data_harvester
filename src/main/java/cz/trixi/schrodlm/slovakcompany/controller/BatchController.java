@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.zip.ZipEntry;
@@ -93,8 +92,8 @@ public class BatchController {
      * @param dateStr - string of date in format "d-M-yyyy"
      */
     @GetMapping("/downloadBatchesSince/{dateStr}")
-    public ResponseEntity<ByteArrayResource> getBatchesSince(@PathVariable String dateStr ) throws IOException {
-        log.info( "Starting to download all batches added since {}", dateStr );
+    public ResponseEntity<ByteArrayResource> serveBatchesSince(@PathVariable String dateStr ) throws IOException {
+        log.info( "Starting to download all batches added since {}...", dateStr );
         LocalDate localDate = LocalDate.parse(dateStr,DateTimeFormatter.ofPattern( "d-M-yyyy" ));
         List<Resource> resources = batchServerService.serveBatchesSince( localDate );
 
@@ -129,13 +128,29 @@ public class BatchController {
     }
 
     /**
-     *
+     * Daily update downloads today's batch from SRPO and persists it
      */
     @GetMapping("/dailyUpdate")
     public void dailyUpdate()
     {
-        log.info( "Starting daily update" );
+        log.info( "Starting daily update..." );
         batchService.dailyUpdate();
     }
+
+    /**
+     * Gets a daily batch from a specific date and persists it
+     * @param dateStr
+     */
+    @GetMapping("/setBatch/{dateStr}")
+    public void setBatch(@PathVariable String dateStr)
+    {
+        log.info( "Getting a batch from date: {}", dateStr );
+        LocalDate date = LocalDate.parse(dateStr,DateTimeFormatter.ofPattern( "d-M-yyyy" ));
+
+        batchService.downloadAndPersistBatchFrom( date );
+
+    }
+
+
 
 }

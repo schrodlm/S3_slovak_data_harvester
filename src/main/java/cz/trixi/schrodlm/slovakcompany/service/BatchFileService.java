@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,6 +84,22 @@ public class BatchFileService {
         unzippedBatches.addAll(unzipDailyBatches());
 
         return unzippedBatches;
+    }
+
+    public BatchModel unzipBatchFrom( LocalDate date){
+        log.info( "Unzipping batch from {}", date.toString() );
+
+        String batchName = BatchService.getZippedBatchNameFrom(date);
+
+        try {
+            return fileUtility.unzipBatch(
+                    new File( Paths.get( zipDir ).resolve( batchName ).toUri() ),
+                    new File( Paths.get( xmlDir ).toUri() )
+            );
+        }
+        catch(IOException e){
+            throw new RuntimeException(e);
+        }
     }
 
 }

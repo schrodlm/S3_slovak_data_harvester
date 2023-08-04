@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -117,7 +118,7 @@ public class BatchS3Handler {
     }
 
     /**
-     *  Download a zipped file containing changes to companies from today
+     * Download a zipped file containing changes to companies from today
      */
     public void downloadTodaysBatch() {
 
@@ -130,10 +131,19 @@ public class BatchS3Handler {
                 .key( key )
                 .build();
         log.info( "Downloading today's batch: " + key );
-        s3Client.getObject( s3ObjectReq, ResponseTransformer.toFile( Paths.get( zipDir ).resolve( BatchService.getTodaysBatchZippedName()) ) );
+        s3Client.getObject( s3ObjectReq, ResponseTransformer.toFile( Paths.get( zipDir ).resolve( key ) ) );
     }
 
+    public void downloadBatchFrom( LocalDate date ) {
+        String formattedDate = date.format( DateTimeFormatter.ofPattern( "yyyy-MM-dd" ) );
+        String key = "batch-daily/actual_" + formattedDate + ".json.gz";
 
-
+        GetObjectRequest s3ObectReq = GetObjectRequest.builder()
+                .bucket( bucket )
+                .key( key )
+                .build();
+        log.info( "Downloading {} batch...", formattedDate );
+        s3Client.getObject( s3ObectReq, ResponseTransformer.toFile( Paths.get( zipDir ).resolve( key ) ) );
+    }
 
 }
