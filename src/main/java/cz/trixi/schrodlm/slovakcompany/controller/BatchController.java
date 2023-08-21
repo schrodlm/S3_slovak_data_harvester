@@ -37,10 +37,11 @@ public class BatchController {
 
     Logger log = LoggerFactory.getLogger( getClass() );
 
-
+    /**
+     * Starts a process of downloading, unzipping, and persisting all available batches
+     */
     @GetMapping("/init")
-    public void initialSetup()
-    {
+    public void initialSetup() {
         batchService.initialSetup();
     }
 
@@ -58,37 +59,16 @@ public class BatchController {
     }
 
     /**
-     * Downloads all batches available from the database
+     * Serves all batches available from the database
      */
     @GetMapping("/downloadAllBatches")
     public ResponseEntity<ByteArrayResource> serveAllBatches() throws IOException {
-        List<Resource> resources = batchServerService.serveAllBatches();
 
-        File zipFile = File.createTempFile( "batches", ".zip" );
+        log.info( "----==============================----" );
+        log.info( "Downloading all batches (runs on side thread)" );
+        ByteArrayResource byteArrayResource = batchServerService.serveAllBatches();
 
-        try (ZipOutputStream zipOut = new ZipOutputStream( new FileOutputStream( zipFile ) )) {
-            for ( Resource resource : resources ) {
-                ZipEntry zipEntry = new ZipEntry( Objects.requireNonNull( resource.getFilename() ) );
-                zipOut.putNextEntry( zipEntry );
-
-                InputStream in = resource.getInputStream();
-                byte[] buffer = new byte[2048];
-
-                int len;
-                while((len = in.read(buffer)) > 0){
-                    zipOut.write( buffer, 0, len );
-                }
-                in.close();
-            }
-        }
-
-        byte [] zipContent = Files.readAllBytes(zipFile.toPath());
-        ByteArrayResource byteArrayResource = new ByteArrayResource( zipContent );
-
-        // Clean up the temporary zip file
-        Files.delete( zipFile.toPath() );
-
-        return ResponseEntity.ok(  )
+        return ResponseEntity.ok()
                 .contentType( MediaType.APPLICATION_JSON )
                 .header( HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = batches.zip" )
                 .body( byteArrayResource );
@@ -96,40 +76,18 @@ public class BatchController {
     }
 
     /**
-     *  It extracts the 'dateStr' path variable to retrieve batches that have been created since the provided date.
+     * It extracts the 'dateStr' path variable to retrieve batches that have been created since the provided date.
+     *
      * @param dateStr - string of date in format "d-M-yyyy"
      */
     @GetMapping("/downloadBatchesSince/{dateStr}")
-    public ResponseEntity<ByteArrayResource> serveBatchesSince(@PathVariable String dateStr ) throws IOException {
+    public ResponseEntity<ByteArrayResource> serveBatchesSince( @PathVariable String dateStr ) throws IOException {
+
+        log.info( "----==============================----" );
         log.info( "Starting to download all batches added since {}...", dateStr );
-        LocalDate localDate = LocalDate.parse(dateStr,DateTimeFormatter.ofPattern( "d-M-yyyy" ));
-        List<Resource> resources = batchServerService.serveBatchesSince( localDate );
+        ByteArrayResource byteArrayResource = batchServerService.serveBatchesSince( dateStr );
 
-        File zipFile = File.createTempFile( "batches", ".zip" );
-
-        try (ZipOutputStream zipOut = new ZipOutputStream( new FileOutputStream( zipFile ) )) {
-            for ( Resource resource : resources ) {
-                ZipEntry zipEntry = new ZipEntry( Objects.requireNonNull( resource.getFilename() ) );
-                zipOut.putNextEntry( zipEntry );
-
-                InputStream in = resource.getInputStream();
-                byte[] buffer = new byte[2048];
-
-                int len;
-                while((len = in.read(buffer)) > 0){
-                    zipOut.write( buffer, 0, len );
-                }
-                in.close();
-            }
-        }
-
-        byte [] zipContent = Files.readAllBytes(zipFile.toPath());
-        ByteArrayResource byteArrayResource = new ByteArrayResource( zipContent );
-
-        // Clean up the temporary zip file
-        Files.delete( zipFile.toPath() );
-
-        return ResponseEntity.ok(  )
+        return ResponseEntity.ok()
                 .contentType( MediaType.APPLICATION_JSON )
                 .header( HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = batches.zip" )
                 .body( byteArrayResource );
@@ -139,8 +97,7 @@ public class BatchController {
      * Daily update downloads today's batch from SRPO and persists it
      */
     @GetMapping("/dailyUpdate")
-    public void dailyUpdate()
-    {
+    public void dailyUpdate() {
         log.info( "Starting daily update..." );
         batchService.dailyUpdate();
     }
@@ -148,19 +105,16 @@ public class BatchController {
     /**
      * Downloads and persists a batch based on the provided date.
      *
-     * @param dateStr The date string in the format "d-M-yyyy" indicating the batch's date.
-     *                e.g., "5-1-2023" for January 5, 2023.
+     * @param dateStr The date string in the format "d-M-yyyy" indicating the batch's date. e.g., "5-1-2023" for January
+     *         5, 2023.
      */
     @GetMapping("/downloadBatch/{dateStr}")
-    public void downloadBatchForDate(@PathVariable String dateStr)
-    {
+    public void downloadBatchForDate( @PathVariable String dateStr ) {
         log.info( "Getting a batch from date: {}", dateStr );
-        LocalDate date = LocalDate.parse(dateStr,DateTimeFormatter.ofPattern( "d-M-yyyy" ));
+        LocalDate date = LocalDate.parse( dateStr, DateTimeFormatter.ofPattern( "d-M-yyyy" ) );
 
         batchService.downloadAndPersistUpdateBatchForDate( date );
 
     }
-
-
 
 }

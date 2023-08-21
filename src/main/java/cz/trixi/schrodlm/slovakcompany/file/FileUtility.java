@@ -3,6 +3,7 @@ package cz.trixi.schrodlm.slovakcompany.file;
 import cz.trixi.schrodlm.slovakcompany.model.BatchModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
@@ -13,9 +14,12 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Service
 public class FileUtility {
@@ -155,6 +159,22 @@ public class FileUtility {
 
         return resource;
     }
+    /**
+     * Serves files as a list of resources from a given list of file paths
+     *
+     * @param filePaths paths to the files to be served as a resources.
+     * @return Returns the file as a `UrlResource` object if it exists
+     */
+    public List<Resource> serveFiles(List<Path> filePaths){
+        List<Resource> resources = new ArrayList<>();
+
+        for ( Path path : filePaths ) {
+            Resource toAdd = serveFile( path );
+            resources.add( toAdd );
+        }
+
+        return resources;
+    }
 
     /**
      * @param directory - deletes directory content
@@ -183,6 +203,8 @@ public class FileUtility {
         }
         throw new IllegalArgumentException("Provided file name does not have a .gz extension: " + zippedFileName);
     }
+
+
 }
 
 

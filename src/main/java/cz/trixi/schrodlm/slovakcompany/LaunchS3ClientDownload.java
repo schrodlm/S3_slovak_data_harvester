@@ -27,12 +27,6 @@ public class LaunchS3ClientDownload {
 
 		BatchService batchService = context.getBean( BatchService.class );
 
-		//companyService.downloadAndParseAllObjects();
-
-		//companyS3Handler.downloadTodaysBatch();
-
-		//companyService.dailyUpdate();
-
 		batchService.initialSetup();
 
 
