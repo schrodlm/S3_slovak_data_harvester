@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +24,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -59,38 +61,54 @@ public class BatchController {
     }
 
     /**
-     * Serves all batches available from the database
+     * Asynchronously serves all batches available from the database
      */
     @GetMapping("/downloadAllBatches")
-    public ResponseEntity<ByteArrayResource> serveAllBatches() throws IOException {
+    public CompletableFuture<ResponseEntity<ByteArrayResource>> serveAllBatches(){
 
         log.info( "----==============================----" );
-        log.info( "Downloading all batches (runs on side thread)" );
-        ByteArrayResource byteArrayResource = batchServerService.serveAllBatches();
+        log.info( "Downloading all batches... (runs on a custom thread)" );
 
-        return ResponseEntity.ok()
-                .contentType( MediaType.APPLICATION_JSON )
-                .header( HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = batches.zip" )
-                .body( byteArrayResource );
+        return CompletableFuture.supplyAsync( () -> {
+            ByteArrayResource byteArrayResource = batchServerService.serveAllBatches();
+
+            return ResponseEntity.ok()
+                    .contentType( MediaType.APPLICATION_JSON )
+                    .header( HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = batches.zip" )
+                    .body( byteArrayResource );
+        }).exceptionally( ex -> {
+            return ResponseEntity.status( HttpStatus.INTERNAL_SERVER_ERROR ).
+                    body( null );
+        });
+
 
     }
 
     /**
-     * It extracts the 'dateStr' path variable to retrieve batches that have been created since the provided date.
+     * Asynchronously extracts the 'dateStr' path variable to retrieve batches that have been created since the provided date.
      *
      * @param dateStr - string of date in format "d-M-yyyy"
      */
     @GetMapping("/downloadBatchesSince/{dateStr}")
-    public ResponseEntity<ByteArrayResource> serveBatchesSince( @PathVariable String dateStr ) throws IOException {
+    public CompletableFuture<ResponseEntity<ByteArrayResource>> serveBatchesSince( @PathVariable String dateStr ){
 
         log.info( "----==============================----" );
-        log.info( "Starting to download all batches added since {}...", dateStr );
-        ByteArrayResource byteArrayResource = batchServerService.serveBatchesSince( dateStr );
+        log.info( "Starting to download all batches added since {}... (runs on a custom thread)", dateStr );
 
-        return ResponseEntity.ok()
-                .contentType( MediaType.APPLICATION_JSON )
-                .header( HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = batches.zip" )
-                .body( byteArrayResource );
+        return CompletableFuture.supplyAsync( () -> {
+
+            ByteArrayResource byteArrayResource = batchServerService.serveBatchesSince( dateStr );
+
+
+            return ResponseEntity.ok()
+                    .contentType( MediaType.APPLICATION_JSON )
+                    .header( HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = batches.zip" )
+                    .body( byteArrayResource );
+        }).exceptionally( ex -> {
+            return ResponseEntity.status( HttpStatus.INTERNAL_SERVER_ERROR ).
+                    body( null );
+        } );
+
     }
 
     /**

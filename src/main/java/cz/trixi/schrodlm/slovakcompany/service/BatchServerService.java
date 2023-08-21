@@ -56,20 +56,27 @@ public class BatchServerService {
     /**
      * Serve all batches available in the database as a byte array resource
      */
-    public ByteArrayResource serveAllBatches() throws IOException {
+    public ByteArrayResource serveAllBatches(){
 
         List<Path> paths = batchDao.getAllBatches();
         List<Resource> resources = fileUtility.serveFiles( paths );
 
         log.info( "{} batches retrieved, preparing ZIP file...", resources.size() );
-        ByteArrayResource zippedFile = prepareZipResources( resources );
-        return zippedFile;
+
+        try{
+            return prepareZipResources( resources );
+        }
+        catch(IOException e)
+        {
+            log.error("There was an error while serving batches", e);
+            return null;
+        }
     }
 
     /**
      * Serves batches added since provided date as a byte array resource
      */
-    public ByteArrayResource serveBatchesSince( String dateStr ) throws IOException {
+    public ByteArrayResource serveBatchesSince( String dateStr ){
 
         //date parsing
         LocalDate date = LocalDate.parse( dateStr, DateTimeFormatter.ofPattern( "d-M-yyyy" ) );
@@ -77,9 +84,13 @@ public class BatchServerService {
         List<Path> paths = batchDao.getBatchesSince( date );
         List<Resource> resources = fileUtility.serveFiles( paths );
         log.info( "{} batches retrieved, preparing ZIP file...", resources.size() );
-        ByteArrayResource zippedFile = prepareZipResources( resources );
-
-        return zippedFile;
+        try {
+            return prepareZipResources( resources );
+        }
+        catch(IOException e){
+            log.error("There was an error while serving batches", e);
+            return null;
+        }
     }
 
     public ByteArrayResource prepareZipResources( List<Resource> resources ) throws IOException {

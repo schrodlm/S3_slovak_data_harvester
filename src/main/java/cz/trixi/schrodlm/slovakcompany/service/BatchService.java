@@ -78,7 +78,7 @@ public class BatchService {
             persistBatches( todaysBatch );
         }
         catch ( IllegalStateException|DataIntegrityViolationException e) {
-            log.warn( e.getMessage() );
+            log.error( "Error while trying to unzip todays batch", e);
         }
     }
 
