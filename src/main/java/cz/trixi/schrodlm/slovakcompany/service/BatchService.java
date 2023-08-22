@@ -5,6 +5,8 @@ import cz.trixi.schrodlm.slovakcompany.model.BatchModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -23,20 +25,18 @@ public class BatchService {
     @Autowired
     BatchDao batchDao;
 
+    @Autowired
+    BatchServerService batchServerService;
+
     Logger log = LoggerFactory.getLogger( getClass() );
 
-    /**
-     * Initialization - download all init and daily batches and unzips them
-     */
-    public void downloadAndUnzipAllBatches() {
-        batchS3Handler.downloadAllBatches();
-        batchFileService.unzipAllBatches();
-    }
 
     /**
      * Initializes the system by downloading, unzipping, and persisting all available batches.
      *
-     * 1. Downloads all batches from SRPO. 2. Unzips these batches. 3. Persists the unzipped batches to the database.
+     * 1. Downloads all batches from SRPO.
+     * 2. Unzips these batches.
+     * 3. Persists the unzipped batches to the database.
      */
     public void initialSetup() {
 
@@ -65,7 +65,10 @@ public class BatchService {
      * @param batch - The batch model to be persisted.
      */
     public void persistBatches( BatchModel batch ) {
+        log.info( "Persisting {} batch...", batch.batchName() );
         batchDao.insert( batch );
+
+
     }
 
     /**
@@ -78,11 +81,14 @@ public class BatchService {
             persistBatches( todaysBatch );
         }
         catch ( IllegalStateException|DataIntegrityViolationException e) {
-            log.warn( e.getMessage() );
-            return;
+            log.error( "Error while trying to unzip today's batch", e);
         }
     }
 
+    /**
+     * Download update batch from specific date.
+     * @param date
+     */
     public void downloadAndPersistUpdateBatchForDate(LocalDate date)
     {
         batchS3Handler.downloadBatchFrom( date );

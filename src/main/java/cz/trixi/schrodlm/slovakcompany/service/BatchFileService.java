@@ -1,6 +1,6 @@
 package cz.trixi.schrodlm.slovakcompany.service;
 
-import cz.trixi.schrodlm.slovakcompany.file.FileUtility;
+import cz.trixi.schrodlm.slovakcompany.file.BatchFileUtility;
 import cz.trixi.schrodlm.slovakcompany.model.BatchModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -28,7 +27,7 @@ public class BatchFileService {
     public String unzippedDir;
 
     @Autowired
-    FileUtility fileUtility;
+    BatchFileUtility batchFileUtility;
 
     Logger log = LoggerFactory.getLogger( getClass() );
 
@@ -39,7 +38,7 @@ public class BatchFileService {
      * @return A list of pairs where each pair consists of the unzipped batch file's name and the unzipped file's path.
      */
     public List<BatchModel> unzipInitBatches() {
-        return fileUtility.deepUnzipBatchDirectory(
+        return batchFileUtility.deepUnzipBatchDirectory(
                 new File( Paths.get( zipDir ).resolve( "batch-init" ).toUri() ),
                 new File( Paths.get( unzippedDir ).resolve( "batch-init" ).toUri() ) );
     }
@@ -51,7 +50,7 @@ public class BatchFileService {
      * @return A list of pairs where each pair consists of the unzipped daily batch file's name and the unzipped file's path.
      */
     public List<BatchModel> unzipDailyBatches() {
-        return fileUtility.deepUnzipBatchDirectory(
+        return batchFileUtility.deepUnzipBatchDirectory(
                 new File( Paths.get( zipDir ).resolve( "batch-daily" ).toUri() ),
                 new File( Paths.get( unzippedDir ).resolve( "batch-daily" ).toUri() ) );
     }
@@ -66,7 +65,7 @@ public class BatchFileService {
     }
 
     /**
-     * Unzips the batch file corresponding to specified date. The method uses the BatchService to determine the name of today's
+     * Unzips the batch file corresponding to specified date. The method determines the name of specific date
      * zipped batch file and then unzips it to the main XML directory.
      *
      * @return A pair consisting of today's unzipped batch file name and its unzipped file path.
@@ -77,12 +76,12 @@ public class BatchFileService {
 
         String batchName = getZippedBatchNameFrom( date );
 
-        if ( Files.exists( Paths.get(unzippedDir).resolve( FileUtility.getUnzippedFileName( batchName )) ) ) {
+        if ( Files.exists( Paths.get(unzippedDir).resolve( BatchFileUtility.getUnzippedFileName( batchName )) ) ) {
             throw new IllegalStateException("Unzipped file " + batchName + " already exists.");
         }
 
         try {
-            return fileUtility.unzipBatch(
+            return batchFileUtility.unzipBatch(
                     new File( Paths.get( zipDir ).resolve( batchName ).toUri() ),
                     new File( Paths.get( unzippedDir ).resolve("batch-daily").toUri() )
             );

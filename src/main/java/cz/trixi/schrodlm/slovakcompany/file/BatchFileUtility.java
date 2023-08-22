@@ -8,7 +8,6 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -18,7 +17,7 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 @Service
-public class FileUtility {
+public class BatchFileUtility {
 
     Logger log = LoggerFactory.getLogger( getClass() );
 
@@ -103,8 +102,6 @@ public class FileUtility {
                 fos.write( buffer, 0, len );
             }
 
-            log.info( "File " + zippedBatch.getName() + " successfully unzipped" );
-
             //closing resources
             fos.close();
             gis.close();
@@ -155,26 +152,21 @@ public class FileUtility {
 
         return resource;
     }
-
     /**
-     * @param directory - deletes directory content
+     * Serves files as a list of resources from a given list of file paths
+     *
+     * @param filePaths paths to the files to be served as a resources.
+     * @return Returns the file as a `UrlResource` object if it exists
      */
-    public void deleteDirectoryContent( File directory ) {
-        //directory is empty
-        if ( directory.listFiles() == null ) {
-            return;
+    public List<Resource> serveFiles(List<Path> filePaths){
+        List<Resource> resources = new ArrayList<>();
+
+        for ( Path path : filePaths ) {
+            Resource toAdd = serveFile( path );
+            resources.add( toAdd );
         }
 
-        for ( final File fileEntry : directory.listFiles() ) {
-            if ( fileEntry.isDirectory() ) {
-                deleteDirectoryContent( fileEntry );
-            }
-            else {
-                fileEntry.delete();
-            }
-        }
-        directory.delete();
-
+        return resources;
     }
 
     public static String getUnzippedFileName(String zippedFileName){
@@ -183,6 +175,8 @@ public class FileUtility {
         }
         throw new IllegalArgumentException("Provided file name does not have a .gz extension: " + zippedFileName);
     }
+
+
 }
 
 
