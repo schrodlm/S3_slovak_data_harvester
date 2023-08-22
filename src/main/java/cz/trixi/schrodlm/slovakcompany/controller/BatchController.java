@@ -71,16 +71,15 @@ public class BatchController {
 
         return CompletableFuture.supplyAsync( () -> {
             ByteArrayResource byteArrayResource = batchServerService.serveAllBatches();
-
+            log.info( "All batches served..." );
             return ResponseEntity.ok()
-                    .contentType( MediaType.APPLICATION_JSON )
+                    .contentType( MediaType.APPLICATION_OCTET_STREAM )
                     .header( HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = batches.zip" )
                     .body( byteArrayResource );
         }).exceptionally( ex -> {
             return ResponseEntity.status( HttpStatus.INTERNAL_SERVER_ERROR ).
                     body( null );
         });
-
 
     }
 
@@ -96,12 +95,10 @@ public class BatchController {
         log.info( "Starting to download all batches added since {}... (runs on a custom thread)", dateStr );
 
         return CompletableFuture.supplyAsync( () -> {
-
             ByteArrayResource byteArrayResource = batchServerService.serveBatchesSince( dateStr );
-
-
+            log.info( "All batches served..." );
             return ResponseEntity.ok()
-                    .contentType( MediaType.APPLICATION_JSON )
+                    .contentType( MediaType.APPLICATION_OCTET_STREAM )
                     .header( HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = batches.zip" )
                     .body( byteArrayResource );
         }).exceptionally( ex -> {
