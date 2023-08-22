@@ -41,6 +41,7 @@ public class BatchController {
 
     /**
      * Starts a process of downloading, unzipping, and persisting all available batches
+     * from Slovakian register.
      */
     @GetMapping("/init")
     public void initialSetup() {
@@ -109,26 +110,29 @@ public class BatchController {
     }
 
     /**
-     * Daily update downloads today's batch from SRPO and persists it
+     * Daily update downloads today's batch from SRPO and persists it.
      */
     @GetMapping("/dailyUpdate")
     public void dailyUpdate() {
         log.info( "Starting daily update..." );
         batchService.dailyUpdate();
+        log.info( "Daily update was successful!" );
     }
 
     /**
      * Downloads and persists a batch based on the provided date.
      *
-     * @param dateStr The date string in the format "d-M-yyyy" indicating the batch's date. e.g., "5-1-2023" for January
-     *         5, 2023.
+     * @param dateStr The date string in the format "d-M-yyyy"
+     * indicating the batch's date. e.g., "5-1-2023" for January 5, 2023.
      */
-    @GetMapping("/downloadBatch/{dateStr}")
+    @GetMapping("/saveBatch/{dateStr}")
     public void downloadBatchForDate( @PathVariable String dateStr ) {
         log.info( "Getting a batch from date: {}", dateStr );
         LocalDate date = LocalDate.parse( dateStr, DateTimeFormatter.ofPattern( "d-M-yyyy" ) );
 
         batchService.downloadAndPersistUpdateBatchForDate( date );
+        log.info( "Save was successful!" );
+
 
     }
 

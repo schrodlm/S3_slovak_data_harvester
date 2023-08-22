@@ -1,14 +1,13 @@
 package cz.trixi.schrodlm.slovakcompany.service;
 
 import cz.trixi.schrodlm.slovakcompany.dao.BatchDao;
-import cz.trixi.schrodlm.slovakcompany.file.FileUtility;
+import cz.trixi.schrodlm.slovakcompany.file.BatchFileUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -20,12 +19,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -36,7 +31,7 @@ public class BatchServerService {
     public String jsonDir;
 
     @Autowired
-    FileUtility fileUtility;
+    BatchFileUtility batchFileUtility;
 
     @Autowired
     BatchDao batchDao;
@@ -54,7 +49,7 @@ public class BatchServerService {
         String todaysBatch = BatchFileService.getBatchNameFrom( LocalDate.now() );
         Path todaysBatchPath = Paths.get( jsonDir ).resolve( todaysBatch ).normalize();
 
-        return fileUtility.serveFile( todaysBatchPath );
+        return batchFileUtility.serveFile( todaysBatchPath );
     }
 
     /**
@@ -88,7 +83,7 @@ public class BatchServerService {
      * @return A ByteArrayResource containing the zipped content or null if there's an error.
      */
     private ByteArrayResource getByteArrayResource( List<Path> paths ) {
-        List<Resource> resources = fileUtility.serveFiles( paths );
+        List<Resource> resources = batchFileUtility.serveFiles( paths );
         log.info( "{} batches retrieved, preparing ZIP file...", resources.size() );
         try {
             return prepareZipResources( resources );

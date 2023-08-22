@@ -65,7 +65,10 @@ public class BatchService {
      * @param batch - The batch model to be persisted.
      */
     public void persistBatches( BatchModel batch ) {
+        log.info( "Persisting {} batch...", batch.batchName() );
         batchDao.insert( batch );
+
+
     }
 
     /**
@@ -78,10 +81,14 @@ public class BatchService {
             persistBatches( todaysBatch );
         }
         catch ( IllegalStateException|DataIntegrityViolationException e) {
-            log.error( "Error while trying to unzip todays batch", e);
+            log.error( "Error while trying to unzip today's batch", e);
         }
     }
 
+    /**
+     * Download update batch from specific date.
+     * @param date
+     */
     public void downloadAndPersistUpdateBatchForDate(LocalDate date)
     {
         batchS3Handler.downloadBatchFrom( date );

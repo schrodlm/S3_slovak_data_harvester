@@ -3,26 +3,21 @@ package cz.trixi.schrodlm.slovakcompany.file;
 import cz.trixi.schrodlm.slovakcompany.model.BatchModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 @Service
-public class FileUtility {
+public class BatchFileUtility {
 
     Logger log = LoggerFactory.getLogger( getClass() );
 
@@ -107,8 +102,6 @@ public class FileUtility {
                 fos.write( buffer, 0, len );
             }
 
-            log.info( "File " + zippedBatch.getName() + " successfully unzipped" );
-
             //closing resources
             fos.close();
             gis.close();
@@ -174,27 +167,6 @@ public class FileUtility {
         }
 
         return resources;
-    }
-
-    /**
-     * @param directory - deletes directory content
-     */
-    public void deleteDirectoryContent( File directory ) {
-        //directory is empty
-        if ( directory.listFiles() == null ) {
-            return;
-        }
-
-        for ( final File fileEntry : directory.listFiles() ) {
-            if ( fileEntry.isDirectory() ) {
-                deleteDirectoryContent( fileEntry );
-            }
-            else {
-                fileEntry.delete();
-            }
-        }
-        directory.delete();
-
     }
 
     public static String getUnzippedFileName(String zippedFileName){
