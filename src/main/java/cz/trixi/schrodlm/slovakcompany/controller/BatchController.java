@@ -132,8 +132,12 @@ public class BatchController {
 
         batchService.downloadAndPersistUpdateBatchForDate( date );
         log.info( "Save was successful!" );
-
-
     }
+
+    @GetMapping("/health")
+    public String health() {
+        return "Ještě žiju...";
+    }
+
 
 }
