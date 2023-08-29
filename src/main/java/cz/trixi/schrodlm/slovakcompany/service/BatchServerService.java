@@ -105,7 +105,8 @@ public class BatchServerService {
      * @throws IOException If there's an error during the zipping process or file operations.
      */
     public ByteArrayResource prepareZipResources( List<Resource> resources ) throws IOException {
-        File zipFile = File.createTempFile( "batches", ".zip" );
+        LocalDate today = LocalDate.now();
+        File zipFile = File.createTempFile( "temp" , ".zip" );
 
         int cnt = 0;
         try (ZipOutputStream zipOut = new ZipOutputStream( new FileOutputStream( zipFile ) )) {

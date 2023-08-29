@@ -75,7 +75,7 @@ public class BatchController {
             log.info( "All batches served..." );
             return ResponseEntity.ok()
                     .contentType( MediaType.APPLICATION_OCTET_STREAM )
-                    .header( HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = batches.zip" )
+                    .header( HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = all_batches_" + LocalDate.now() + ".zip" )
                     .body( byteArrayResource );
         }).exceptionally( ex -> {
             return ResponseEntity.status( HttpStatus.INTERNAL_SERVER_ERROR ).
@@ -100,7 +100,7 @@ public class BatchController {
             log.info( "All batches served..." );
             return ResponseEntity.ok()
                     .contentType( MediaType.APPLICATION_OCTET_STREAM )
-                    .header( HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = batches.zip" )
+                    .header( HttpHeaders.CONTENT_DISPOSITION, "attachment; filename batches_since_" + dateStr + ".zip" )
                     .body( byteArrayResource );
         }).exceptionally( ex -> {
             return ResponseEntity.status( HttpStatus.INTERNAL_SERVER_ERROR ).
